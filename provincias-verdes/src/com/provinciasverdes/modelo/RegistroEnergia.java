@@ -1,45 +1,75 @@
 package com.provinciasverdes.modelo;
 
-import java.util.Date;
+import com.provinciasverdes.modelo.interfaces.IExportable;
+import java.time.LocalDateTime;
 
-public class RegistroEnergia extends EntidadBase {
-    private int idEquipo;
-    private Date fechaHora;
-    private double voltaje;
-    private double corriente;
+/**
+ * Clase RegistroEnergia: Almacena mediciones (RF4).
+ * Calcula Balance Energético (RF5).
+ */
+public class RegistroEnergia extends EntidadBase implements IExportable {
+    private LocalDateTime fechaHora;
     private double energiaGenerada;
     private double energiaConsumida;
+    private double voltaje;
+    private double corriente;
+    private int idEquipo; // FK
+    private double balance; // Calculado: Generada - Consumida
 
     public RegistroEnergia() { super(); }
 
-    public RegistroEnergia(int id, int idEquipo, Date fechaHora, double voltaje, double corriente, double energiaGenerada, double energiaConsumida) {
+    public RegistroEnergia(int id, LocalDateTime fechaHora, double energiaGenerada, double energiaConsumida, double voltaje, double corriente, int idEquipo) {
         super(id);
-        this.idEquipo = idEquipo;
         this.fechaHora = fechaHora;
-        this.voltaje = voltaje;
-        this.corriente = corriente;
         this.energiaGenerada = energiaGenerada;
         this.energiaConsumida = energiaConsumida;
+        this.voltaje = voltaje;
+        this.corriente = corriente;
+        this.idEquipo = idEquipo;
+        calcularBalance(); // Cálculo automático al crear
     }
 
-    // Getters y Setters
-    public int getIdEquipo() { return idEquipo; }
-    public void setIdEquipo(int idEquipo) { this.idEquipo = idEquipo; }
-    public Date getFechaHora() { return fechaHora; }
-    public void setFechaHora(Date fechaHora) { this.fechaHora = fechaHora; }
-    public double getVoltaje() { return voltaje; }
-    public void setVoltaje(double voltaje) { this.voltaje = voltaje; }
-    public double getCorriente() { return corriente; }
-    public void setCorriente(double corriente) { this.corriente = corriente; }
+    // Getters
+    public LocalDateTime getFechaHora() { return fechaHora; }
     public double getEnergiaGenerada() { return energiaGenerada; }
-    public void setEnergiaGenerada(double energiaGenerada) { this.energiaGenerada = energiaGenerada; }
     public double getEnergiaConsumida() { return energiaConsumida; }
-    public void setEnergiaConsumida(double energiaConsumida) { this.energiaConsumida = energiaConsumida; }
+    public double getVoltaje() { return voltaje; }
+    public double getCorriente() { return corriente; }
+    public int getIdEquipo() { return idEquipo; }
+    public double getBalance() { return balance; }
+
+    // Lógica de Negocio
+    public void calcularBalance() {
+        this.balance = this.energiaGenerada - this.energiaConsumida;
+    }
+
+    public String obtenerEstadoBalance() {
+        if(balance > 0) return "EXCEDENTE (+)";
+        if(balance < 0) return "DÉFICIT (-)";
+        return "NEUTRO (=)";
+    }
+
+    // Implementación Interfaz IExportable
+    @Override
+    public String generarEncabezado() {
+        return "ID;FECHA;GENERADA_kWh;CONSUMIDA_kWh;BALANCE;ESTADO";
+    }
+    @Override
+    public String generarCuerpo() {
+        return id + ";" + fechaHora + ";" + energiaGenerada + ";" + energiaConsumida + ";" + balance + ";" + obtenerEstadoBalance();
+    }
+    @Override
+    public void exportarCSV(String ruta) { /* Llamada a GestorArchivos */ }
+    @Override
+    public void exportarTXT(String ruta) { /* Llamada a GestorArchivos */ }
 
     @Override
     public void mostrarDatos() {
-        System.out.println("=== REGISTRO ENERGÉTICO ===");
-        System.out.println("Fecha: " + fechaHora);
-        System.out.println("Generado: " + energiaGenerada + " kWh | Consumido: " + energiaConsumida + " kWh");
+        System.out.println("📊 Registro [" + fechaHora + "]: Gen: " + energiaGenerada + " | Con: " + energiaConsumida + " | Balance: " + balance + " " + obtenerEstadoBalance());
+    }
+
+    @Override
+    public String paraArchivo() {
+        return generarCuerpo();
     }
 }
