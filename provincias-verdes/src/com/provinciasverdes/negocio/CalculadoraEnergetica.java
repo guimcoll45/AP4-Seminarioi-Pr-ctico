@@ -5,28 +5,20 @@ import java.util.List;
 
 public class CalculadoraEnergetica {
 
-    public static double calcularBalanceTotal(List<RegistroEnergia> registros) {
-        double total = 0;
-        for (RegistroEnergia r : registros) {
-            total += r.getBalance();
-        }
-        return total;
+    public static double calcularTotalGenerado(List<RegistroEnergia> registros) {
+        return registros.stream().mapToDouble(RegistroEnergia::getEnergiaGenerada).sum();
     }
 
-    public static double calcularEficienciaPorcentual(List<RegistroEnergia> registros) {
-        double totalGen = 0;
-        double totalCon = 0;
-        for (RegistroEnergia r : registros) {
-            totalGen += r.getEnergiaGenerada();
-            totalCon += r.getEnergiaConsumida();
-        }
-        if (totalGen == 0) return 0;
-        return ((totalGen - totalCon) / totalGen) * 100;
+    public static double calcularTotalConsumido(List<RegistroEnergia> registros) {
+        return registros.stream().mapToDouble(RegistroEnergia::getEnergiaConsumida).sum();
     }
 
-    public static String clasificarEficiencia(double porcentaje) {
-        if (porcentaje >= 75) return "✅ ÓPTIMO";
-        if (porcentaje >= 50) return "⚠️ ACEPTABLE";
-        return "🔴 BAJO RENDIMIENTO";
+    public static double calcularSaldoEnergia(List<RegistroEnergia> registros) {
+        return calcularTotalGenerado(registros) - calcularTotalConsumido(registros);
+    }
+
+    public static double calcularEficiencia(double generada, double potenciaMaxima) {
+        if (potenciaMaxima <= 0) return 0;
+        return Math.min((generada / potenciaMaxima) * 100, 100);
     }
 }
