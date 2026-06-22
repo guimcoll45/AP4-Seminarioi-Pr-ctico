@@ -1,7 +1,8 @@
-package com.provinciasverdes.modelo.enums;
+package com.provinciasverdes.enums;
 
 public enum EstadoEquipo {
     ACTIVO,
+    INACTIVO,
     MANTENIMIENTO,
-    INACTIVO
+    FALLA
 }
