@@ -1,8 +1,7 @@
-package com.provinciasverdes.modelo.enums;
+package com.provinciasverdes.enums;
 
 public enum TipoUsuario {
     ADMIN,
-    TECNICO,
     RESIDENCIAL,
     COMERCIAL
 }
