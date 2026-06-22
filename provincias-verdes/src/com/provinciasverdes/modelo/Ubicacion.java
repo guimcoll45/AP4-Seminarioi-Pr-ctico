@@ -1,13 +1,30 @@
 package com.provinciasverdes.modelo;
 
-public class Ubicacion extends EntidadBase {
+public class Ubicacion {
+    private int id;
+    private int idUsuario;
     private String provincia;
     private String direccion;
     private double latitud;
     private double longitud;
-    private int idUsuario;
 
     public Ubicacion() {}
+
+    public Ubicacion(int id, int idUsuario, String provincia, String direccion, double latitud, double longitud) {
+        this.id = id;
+        this.idUsuario = idUsuario;
+        this.provincia = provincia;
+        this.direccion = direccion;
+        this.latitud = latitud;
+        this.longitud = longitud;
+    }
+
+    // Getters y Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public int getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 
     public String getProvincia() { return provincia; }
     public void setProvincia(String provincia) { this.provincia = provincia; }
@@ -21,16 +38,8 @@ public class Ubicacion extends EntidadBase {
     public double getLongitud() { return longitud; }
     public void setLongitud(double longitud) { this.longitud = longitud; }
 
-    public int getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
-
     @Override
-    public void mostrarDatos() {
-        System.out.println("ID: " + id + " | Prov: " + provincia + " | Dir: " + direccion + " | Usuario ID: " + idUsuario);
-    }
-
-    @Override
-    public String paraArchivo() {
-        return id + ";" + provincia + ";" + direccion + ";" + latitud + ";" + longitud + ";" + idUsuario;
+    public String toString() {
+        return "ID: " + id + " | Provincia: " + provincia + " | Dirección: " + direccion;
     }
 }
