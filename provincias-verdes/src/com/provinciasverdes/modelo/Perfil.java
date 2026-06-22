@@ -1,37 +1,41 @@
 package com.provinciasverdes.modelo;
 
-/**
- * Clase Perfil: Composición 1 a 1 con Usuario.
- * Encapsula datos personales.
- */
+import com.provinciasverdes.enums.TipoUsuario;
+
 public class Perfil extends EntidadBase {
-    private String telefono;
-    private String direccionEmail;
+    private TipoUsuario tipo;
     private String descripcion;
 
-    public Perfil() { super(); }
-    public Perfil(int id, String telefono, String direccionEmail, String descripcion) {
+    public Perfil() {}
+
+    public Perfil(int id, TipoUsuario tipo, String descripcion) {
         super(id);
-        this.telefono = telefono;
-        this.direccionEmail = direccionEmail;
+        this.tipo = tipo;
         this.descripcion = descripcion;
     }
 
-    // Getters y Setters
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
-    public String getDireccionEmail() { return direccionEmail; }
-    public void setDireccionEmail(String direccionEmail) { this.direccionEmail = direccionEmail; }
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public TipoUsuario getTipo() {
+        return tipo;
+    }
 
-    @Override
-    public void mostrarDatos() {
-        System.out.println("Perfil: Tel: " + telefono + " | Mail: " + direccionEmail);
+    public void setTipo(TipoUsuario tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     @Override
-    public String paraArchivo() {
-        return id + ";" + telefono + ";" + direccionEmail + ";" + descripcion;
+    public String toString() {
+        return "Perfil{" +
+                "id=" + id +
+                ", tipo=" + tipo +
+                ", descripcion='" + descripcion + '\'' +
+                '}';
     }
 }
