@@ -1,399 +1,250 @@
 package com.provinciasverdes.interfaz;
 
-import com.provinciasverdes.modelo.*;
-import com.provinciasverdes.negocio.*;
-import com.provinciasverdes.persistencia.*;
-import java.util.*;
-import java.sql.*;
+import com.provinciasverdes.modelo.Usuario;
+import com.provinciasverdes.modelo.Ubicacion;
+import com.provinciasverdes.modelo.EquipoSolar;
+import com.provinciasverdes.modelo.RegistroEnergia;
+import com.provinciasverdes.modelo.enums.TipoUsuario;
+import com.provinciasverdes.modelo.enums.EstadoUsuario;
+import com.provinciasverdes.modelo.enums.TipoEquipo;
+import com.provinciasverdes.persistencia.UsuarioDAO;
+import com.provinciasverdes.persistencia.UbicacionDAO;
+import com.provinciasverdes.persistencia.EquipoSolarDAO;
+import com.provinciasverdes.persistencia.RegistroEnergiaDAO;
+import com.provinciasverdes.negocio.CalculadoraEnergetica;
+import com.provinciasverdes.negocio.GeneradorReporte;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class MenuPrincipal {
+    private static UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private static UbicacionDAO ubiDAO = new UbicacionDAO();
+    private static EquipoSolarDAO eqDAO = new EquipoSolarDAO();
+    private static RegistroEnergiaDAO regDAO = new RegistroEnergiaDAO();
+    private static Usuario usuarioLogueado = null;
 
-    public static void iniciar() {
-        Scanner scanner = new Scanner(System.in);
+    public static void mostrarMenu() {
         int opcion;
+        do {
+            System.out.println("\n===== 🌱 PROVINCIAS VERDES - SISTEMA DE GESTIÓN ENERGÉTICA =====");
+            if (usuarioLogueado == null) {
+                System.out.println("1. Iniciar Sesión");
+                System.out.println("2. Registrarse");
+                System.out.println("0. Salir");
+                opcion = EntradaDatos.leerEntero("Seleccione una opción: ");
+                manejarAcceso(opcion);
+            } else {
+                System.out.println("👤 Usuario: " + usuarioLogueado.getNombre() + " | Tipo: " + usuarioLogueado.getTipo());
+                System.out.println("1. Gestión de Ubicaciones");
+                System.out.println("2. Gestión de Equipos Solares");
+                System.out.println("3. Registrar Medición Energética");
+                System.out.println("4. Ver Reportes y Estadísticas");
+                System.out.println("5. Buscar y Consultar Datos");
+                if (usuarioLogueado.getTipo() == TipoUsuario.ADMIN) {
+                    System.out.println("6. Administrar Usuarios");
+                }
+                System.out.println("9. Cerrar Sesión");
+                System.out.println("0. Salir");
+                opcion = EntradaDatos.leerEntero("Seleccione una opción: ");
+                manejarOpciones(opcion);
+            }
+        } while (true);
+    }
 
-        System.out.println("=====================================");
-        System.out.println("     ? SISTEMA PROVINCIAS VERDES    ");
-        System.out.println("=====================================");
+    private static void manejarAcceso(int opcion) {
+        switch (opcion) {
+            case 1:
+                login();
+                break;
+            case 2:
+                registrarUsuario();
+                break;
+            case 0:
+                System.out.println("👋 Saliendo del sistema...");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("❌ Opción inválida.");
+        }
+    }
 
-        // ==== LOGIN ====
-        System.out.print("Ingrese su correo: ");
-        String correo = scanner.nextLine();
-        System.out.print("Ingrese su contraseña: ");
-        String clave = scanner.nextLine();
+    private static void login() {
+        System.out.println("\n--- 🔑 INICIO DE SESIÓN ---");
+        String correo = EntradaDatos.leerTexto("Correo: ");
+        String clave = EntradaDatos.leerTexto("Contraseña: ");
+        usuarioLogueado = usuarioDAO.buscarPorCorreoYClave(correo, clave);
+    }
 
-        UsuarioDAO usuarioDao = new UsuarioDAO();
-        Usuario usuarioLogueado = usuarioDao.buscarPorCorreoYClave(correo, clave);
+    private static void registrarUsuario() {
+        System.out.println("\n--- 📝 NUEVO USUARIO ---");
+        String nombre = EntradaDatos.leerTexto("Nombre completo: ");
+        String correo = EntradaDatos.leerTexto("Correo electrónico: ");
+        String clave = EntradaDatos.leerTexto("Contraseña: ");
+        
+        Usuario nuevo = new Usuario();
+        nuevo.setNombre(nombre);
+        nuevo.setEmail(correo);
+        nuevo.setContrasena(clave);
+        nuevo.setTipo(TipoUsuario.RESIDENCIAL);
+        nuevo.setEstado(EstadoUsuario.ACTIVO);
 
-        if (usuarioLogueado == null) {
-            System.out.println("❌ Usuario o contraseña incorrectos. Saliendo...");
+        if (usuarioDAO.crear(nuevo)) {
+            System.out.println("✅ Usuario registrado con éxito. Ya puedes iniciar sesión.");
+        } else {
+            System.out.println("❌ No se pudo registrar. El correo ya está en uso.");
+        }
+    }
+
+    private static void manejarOpciones(int opcion) {
+        switch (opcion) {
+            case 1:
+                menuUbicaciones();
+                break;
+            case 2:
+                menuEquipos();
+                break;
+            case 3:
+                registrarMedicion();
+                break;
+            case 4:
+                mostrarReportes();
+                break;
+            case 5:
+                buscarDatos();
+                break;
+            case 6:
+                if (usuarioLogueado.getTipo() == TipoUsuario.ADMIN) menuAdmin();
+                break;
+            case 9:
+                usuarioLogueado = null;
+                System.out.println("🔓 Sesión cerrada.");
+                break;
+            case 0:
+                System.out.println("👋 Saliendo del sistema...");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("❌ Opción inválida.");
+        }
+    }
+
+    private static void menuUbicaciones() {
+        int op;
+        do {
+            System.out.println("\n--- 📍 GESTIÓN DE UBICACIONES ---");
+            System.out.println("1. Agregar Ubicación");
+            System.out.println("2. Ver mis Ubicaciones");
+            System.out.println("0. Volver");
+            op = EntradaDatos.leerEntero("Opción: ");
+            if (op == 1) {
+                Ubicacion u = new Ubicacion();
+                u.setIdUsuario(usuarioLogueado.getId());
+                u.setProvincia(EntradaDatos.leerTexto("Provincia: "));
+                u.setDireccion(EntradaDatos.leerTexto("Dirección: "));
+                u.setLatitud(EntradaDatos.leerDouble("Latitud: "));
+                u.setLongitud(EntradaDatos.leerDouble("Longitud: "));
+                if (ubiDAO.crear(u)) System.out.println("✅ Ubicación guardada.");
+            } else if (op == 2) {
+                List<Ubicacion> lista = ubiDAO.listarPorUsuario(usuarioLogueado.getId());
+                if (lista.isEmpty()) {
+                    System.out.println("ℹ️ No tienes ubicaciones registradas.");
+                } else {
+                    lista.forEach(System.out::println);
+                }
+            }
+        } while (op != 0);
+    }
+
+    private static void menuEquipos() {
+        int op;
+        do {
+            System.out.println("\n--- 🔌 GESTIÓN DE EQUIPOS ---");
+            System.out.println("1. Agregar Equipo");
+            System.out.println("2. Ver Equipos de una Ubicación");
+            System.out.println("0. Volver");
+            op = EntradaDatos.leerEntero("Opción: ");
+            if (op == 1) {
+                int idUbi = EntradaDatos.leerEntero("ID Ubicación: ");
+                String tipoStr = EntradaDatos.leerTexto("Tipo (PANEL/INVERSOR/BATERIA/REGULADOR): ");
+                double pot = EntradaDatos.leerDouble("Potencia nominal: ");
+                double cap = EntradaDatos.leerDouble("Capacidad: ");
+
+                try {
+                    EquipoSolar eq = new EquipoSolar();
+                    eq.setIdUbicacion(idUbi);
+                    eq.setTipo(TipoEquipo.fromString(tipoStr));
+                    eq.setPotenciaNominal(pot);
+                    eq.setCapacidad(cap);
+                    eq.setFechaInstalacion(LocalDateTime.now());
+                    eq.setEstado(com.provinciasverdes.modelo.enums.EstadoEquipo.ACTIVO);
+
+                    if (eqDAO.crear(eq)) {
+                        System.out.println("✅ Equipo agregado correctamente.");
+                    } else {
+                        System.out.println("❌ No se pudo guardar el equipo.");
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.out.println("❌ Error: " + e.getMessage());
+                }
+
+            } else if (op == 2) {
+                int idUbi = EntradaDatos.leerEntero("ID Ubicación: ");
+                List<EquipoSolar> lista = eqDAO.listarPorUbicacion(idUbi);
+                if (lista.isEmpty()) {
+                    System.out.println("ℹ️ No hay equipos en esta ubicación.");
+                } else {
+                    lista.forEach(e -> System.out.println("ID:"+e.getId()+" | Tipo:"+e.getTipo()+" | Potencia:"+e.getPotenciaNominal()));
+                }
+            }
+        } while (op != 0);
+    }
+
+    private static void registrarMedicion() {
+        System.out.println("\n--- 📊 NUEVA MEDICIÓN ---");
+        int idEq = EntradaDatos.leerEntero("ID Equipo: ");
+        double gen = EntradaDatos.leerDouble("Energía Generada (kWh): ");
+        double con = EntradaDatos.leerDouble("Energía Consumida (kWh): ");
+        double vol = EntradaDatos.leerDouble("Voltaje: ");
+        double cor = EntradaDatos.leerDouble("Corriente: ");
+
+        RegistroEnergia r = new RegistroEnergia();
+        r.setIdEquipo(idEq);
+        r.setFechaHora(LocalDateTime.now());
+        r.setEnergiaGenerada(gen);
+        r.setEnergiaConsumida(con);
+        r.setVoltaje(vol);
+        r.setCorriente(cor);
+        r.calcularBalance();
+
+        if (regDAO.crear(r)) System.out.println("✅ Medición guardada. Balance: " + r.getBalance() + " kWh");
+    }
+
+    private static void mostrarReportes() {
+        System.out.println("\n--- 📈 REPORTES ---");
+        List<RegistroEnergia> todos = regDAO.listarTodos();
+        if (todos.isEmpty()) {
+            System.out.println("ℹ️ No hay registros para generar reportes.");
             return;
         }
+        String informe = GeneradorReporte.generarReporteEficiencia(todos, "Todo el periodo");
+        System.out.println(informe);
+        GeneradorReporte.generarYGuardarReporte(todos, "reporte_general", "reporte_provincias_verdes.txt");
+        
+        double balance = CalculadoraEnergetica.calcularBalanceTotal(todos);
+        System.out.println("⚖️ Balance Global: " + String.format("%.2f", balance) + " kWh");
+    }
 
-        System.out.println("✅ Bienvenido/a: " + usuarioLogueado.getNombre() + " | Perfil: " + usuarioLogueado.getPerfil());
-        System.out.println("=====================================\n");
+    private static void buscarDatos() {
+        System.out.println("\n--- 🔍 BUSCAR ---");
+        int id = EntradaDatos.leerEntero("Ingrese ID a buscar: ");
+        Ubicacion u = ubiDAO.leer(id);
+        if (u != null) u.mostrarDatos();
+        else System.out.println("❌ No encontrado.");
+    }
 
-        // ==== MENÚ PRINCIPAL ====
-        do {
-            System.out.println("\n===== ? PROVINCIAS VERDES - MENÚ =====");
-            System.out.println("Usuario: " + usuarioLogueado.getNombre() + " | Perfil: " + usuarioLogueado.getPerfil());
-            System.out.println("=====================================");
-            System.out.println("1. Gestión de Usuarios");
-            System.out.println("2. Gestión de Ubicaciones");
-            System.out.println("3. Gestión de Equipos Solares");
-            System.out.println("4. Registro de Mediciones");
-            System.out.println("5. Consultas y Balance Energético");
-            System.out.println("6. Generación de Reportes");
-            System.out.println("7. Herramientas (Ordenar / Buscar)");
-            System.out.println("8. Salir");
-            System.out.print("Ingrese su opción: ");
-
-            while (!scanner.hasNextInt()) {
-                System.out.print("Ingrese un número válido: ");
-                scanner.next();
-            }
-            opcion = scanner.nextInt();
-            scanner.nextLine(); // Limpiar buffer
-
-            switch (opcion) {
-
-                // ==============================================
-                // OPCIÓN 1: GESTIÓN DE USUARIOS
-                // ==============================================
-                case 1:
-                    System.out.println("\n===== GESTIÓN DE USUARIOS =====");
-                    if (!usuarioLogueado.getPerfil().equals("ADMIN")) {
-                        System.out.println("❌ ACCESO DENEGADO: Solo administradores.");
-                        break;
-                    }
-
-                    int opcUser;
-                    do {
-                        System.out.println("\n1. Listar todos");
-                        System.out.println("2. Buscar por correo");
-                        System.out.println("3. Crear nuevo usuario");
-                        System.out.println("4. Volver al menú principal");
-                        System.out.print("Elija una opción: ");
-
-                        while (!scanner.hasNextInt()) {
-                            System.out.print("Ingrese un número válido: ");
-                            scanner.next();
-                        }
-                        opcUser = scanner.nextInt();
-                        scanner.nextLine();
-
-                        switch (opcUser) {
-                            case 1:
-                                System.out.println("\n--- Lista Completa ---");
-                                List<Usuario> listaUsuarios = usuarioDao.listarTodos();
-                                if (listaUsuarios.isEmpty()) {
-                                    System.out.println("⚠️ No hay usuarios registrados.");
-                                } else {
-                                    for (Usuario u : listaUsuarios) {
-                                        System.out.println("ID:" + u.getId() + " | Nombre:" + u.getNombre() + " | Correo:" + u.getCorreo() + " | Perfil:" + u.getPerfil());
-                                    }
-                                }
-                                break;
-
-                            case 2:
-                                System.out.print("Ingrese correo a buscar: ");
-                                String correoBuscar = scanner.nextLine();
-                                Usuario encontrado = usuarioDao.buscarPorCorreoYClave(correoBuscar, "");
-                                if (encontrado != null) {
-                                    System.out.println("✅ Encontrado: " + encontrado.getNombre() + " | Perfil: " + encontrado.getPerfil());
-                                } else {
-                                    System.out.println("❌ No encontrado.");
-                                }
-                                break;
-
-                            case 3:
-                                System.out.println("--- Nuevo Usuario ---");
-                                System.out.print("Nombre: ");
-                                String nombreNuevo = scanner.nextLine();
-                                System.out.print("Correo: ");
-                                String correoNuevo = scanner.nextLine();
-                                System.out.print("Contraseña: ");
-                                String passNuevo = scanner.nextLine();
-                                System.out.print("Perfil (ADMIN / USUARIO): ");
-                                String perfilNuevo = scanner.nextLine().toUpperCase();
-
-                                Usuario nuevo = new Usuario(0, nombreNuevo, correoNuevo, passNuevo, perfilNuevo);
-                                if (usuarioDao.crear(nuevo)) {
-                                    System.out.println("✅ Usuario creado exitosamente.");
-                                } else {
-                                    System.out.println("❌ Error: Correo ya existe o datos inválidos.");
-                                }
-                                break;
-
-                            case 4:
-                                System.out.println("🔙 Volviendo...");
-                                break;
-
-                            default:
-                                System.out.println("⚠️ Opción inválida.");
-                        }
-                    } while (opcUser != 4);
-                    break;
-
-                // ==============================================
-                // OPCIÓN 2: GESTIÓN DE UBICACIONES (✅ ARREGLADA)
-                // ==============================================
-                case 2:
-                    System.out.println("\n===== GESTIÓN DE UBICACIONES =====");
-                    UbicacionDAO ubiDao = new UbicacionDAO();
-                    int opcUbi;
-                    do {
-                        System.out.println("\n1. Ver todas");
-                        System.out.println("2. Agregar nueva");
-                        System.out.println("3. Buscar por ID");
-                        System.out.println("4. Volver");
-                        System.out.print("Opción: ");
-                        
-                        while (!scanner.hasNextInt()) { 
-                            System.out.print("Ingrese un número válido: ");
-                            scanner.next();
-                        }
-                        opcUbi = scanner.nextInt();
-                        scanner.nextLine(); // Limpieza segura
-
-                        switch (opcUbi) {
-                            case 1:
-                                List<Ubicacion> listaUbi = ubiDao.listarTodas();
-                                for (Ubicacion u : listaUbi) {
-                                    System.out.println("ID:" + u.getId() + " | " + u.getProvincia() + " - " + u.getDireccion());
-                                }
-                                break;
-
-                            case 2:
-                                System.out.print("Provincia: "); 
-                                String prov = scanner.nextLine();
-                                
-                                System.out.print("Dirección: "); 
-                                String dir = scanner.nextLine();
-
-                                System.out.print("Latitud (ej: -26.17): "); 
-                                while (!scanner.hasNextDouble()) { 
-                                    System.out.print("Error. Ingrese número válido (ej: -26.17): ");
-                                    scanner.next();
-                                }
-                                double lat = scanner.nextDouble();
-                                scanner.nextLine(); // Limpieza obligatoria después de número
-
-                                System.out.print("Longitud (ej: -58.18): "); 
-                                while (!scanner.hasNextDouble()) { 
-                                    System.out.print("Error. Ingrese número válido (ej: -58.18): ");
-                                    scanner.next();
-                                }
-                                double lon = scanner.nextDouble();
-                                scanner.nextLine(); // Limpieza obligatoria después de número
-
-                                Ubicacion nuevaUbi = new Ubicacion(0, usuarioLogueado.getId(), prov, dir, lat, lon);
-                                if (ubiDao.crear(nuevaUbi)) {
-                                    System.out.println("✅ Ubicación guardada correctamente.");
-                                } else {
-                                    System.out.println("❌ Error al guardar ubicación.");
-                                }
-                                break;
-
-                            case 3:
-                                System.out.print("Ingrese ID de ubicación: "); 
-                                while (!scanner.hasNextInt()) { 
-                                    System.out.print("ID inválido, ingrese un número: ");
-                                    scanner.next();
-                                }
-                                int idUbi = scanner.nextInt();
-                                scanner.nextLine();
-                                
-                                Ubicacion b = ubiDao.buscarPorId(idUbi);
-                                if (b != null) {
-                                    System.out.println("✅ " + b.getProvincia() + ", " + b.getDireccion());
-                                } else {
-                                    System.out.println("❌ Ubicación no encontrada.");
-                                }
-                                break;
-
-                            case 4:
-                                System.out.println("🔙 Volviendo al menú...");
-                                break;
-
-                            default:
-                                System.out.println("⚠️ Opción inválida.");
-                        }
-                    } while (opcUbi != 4);
-                    break;
-
-                // ==============================================
-                // OPCIÓN 3: GESTIÓN DE EQUIPOS SOLARES
-                // ==============================================
-                case 3:
-                    System.out.println("\n===== GESTIÓN DE EQUIPOS SOLARES =====");
-                    EquipoSolarDAO eqDao = new EquipoSolarDAO();
-                    int opcEq;
-                    do {
-                        System.out.println("\n1. Ver todos");
-                        System.out.println("2. Agregar equipo");
-                        System.out.println("3. Filtrar por ubicación");
-                        System.out.println("4. Volver");
-                        System.out.print("Opción: ");
-                        while (!scanner.hasNextInt()) scanner.next();
-                        opcEq = scanner.nextInt();
-                        scanner.nextLine();
-
-                        switch (opcEq) {
-                            case 1:
-                                List<EquipoSolar> equipos = eqDao.listarTodos();
-                                for (EquipoSolar e : equipos) {
-                                    System.out.println("ID:" + e.getId() + " | Tipo:" + e.getTipo() + " | Potencia:" + e.getPotencia() + "kW");
-                                }
-                                break;
-                            case 2:
-                                System.out.print("ID Ubicación: "); int idUbi = scanner.nextInt();
-                                scanner.nextLine();
-                                System.out.print("Tipo (Panel/Inversor): "); String tipo = scanner.nextLine();
-                                System.out.print("Potencia: "); double pot = scanner.nextDouble();
-                                scanner.nextLine();
-                                System.out.print("Modelo: "); String mod = scanner.nextLine();
-
-                                EquipoSolar nuevoEq = new EquipoSolar(0, idUbi, tipo, pot, mod);
-                                if (eqDao.crear(nuevoEq)) System.out.println("✅ Equipo agregado.");
-                                else System.out.println("❌ Error.");
-                                break;
-                            case 3:
-                                System.out.print("ID Ubicación: "); int id = scanner.nextInt();
-                                scanner.nextLine();
-                                List<EquipoSolar> listaEqUbi = eqDao.listarPorUbicacion(id);
-                                if (listaEqUbi.isEmpty()) System.out.println("⚠️ Sin equipos aquí.");
-                                else listaEqUbi.forEach(e -> System.out.println("- " + e.getTipo() + " | " + e.getModelo()));
-                                break;
-                        }
-                    } while (opcEq != 4);
-                    break;
-
-                // ==============================================
-                // OPCIÓN 4: REGISTRO DE MEDICIONES
-                // ==============================================
-                case 4:
-                    System.out.println("\n===== REGISTRO DE MEDICIONES =====");
-                    RegistroEnergiaDAO regDao = new RegistroEnergiaDAO();
-                    int opcReg;
-                    do {
-                        System.out.println("\n1. Cargar nueva medición");
-                        System.out.println("2. Ver historial");
-                        System.out.println("3. Volver");
-                        System.out.print("Opción: ");
-                        while (!scanner.hasNextInt()) scanner.next();
-                        opcReg = scanner.nextInt();
-                        scanner.nextLine();
-
-                        switch (opcReg) {
-                            case 1:
-                                System.out.print("ID Equipo: "); int idEq = scanner.nextInt();
-                                System.out.print("Voltaje (V): "); double vol = scanner.nextDouble();
-                                System.out.print("Corriente (A): "); double cor = scanner.nextDouble();
-                                System.out.print("Energía Generada: "); double gen = scanner.nextDouble();
-                                System.out.print("Energía Consumida: "); double con = scanner.nextDouble();
-                                scanner.nextLine();
-
-                                RegistroEnergia r = new RegistroEnergia(0, idEq, new java.util.Date(), vol, cor, gen, con);
-                                if (regDao.crear(r)) System.out.println("✅ Medición guardada.");
-                                else System.out.println("❌ Error al guardar.");
-                                break;
-                            case 2:
-                                List<RegistroEnergia> mediciones = regDao.listarTodos();
-                                for (RegistroEnergia m : mediciones) {
-                                    System.out.println("Fecha:" + m.getFechaHora() + " | Gen:" + m.getEnergiaGenerada() + " | Con:" + m.getEnergiaConsumida());
-                                }
-                                break;
-                        }
-                    } while (opcReg != 3);
-                    break;
-
-                // ==============================================
-                // OPCIÓN 5: BALANCE ENERGÉTICO
-                // ==============================================
-                case 5:
-                    System.out.println("\n===== CÁLCULO DE BALANCE ENERGÉTICO =====");
-                    RegistroEnergiaDAO registroDao = new RegistroEnergiaDAO();
-                    CalculadoraBalance calculadora = new CalculadoraBalance();
-
-                    try {
-                        List<RegistroEnergia> datos = registroDao.listarTodos();
-                        if (datos.isEmpty()) {
-                            System.out.println("⚠️ No hay datos para calcular.");
-                            break;
-                        }
-
-                        double total = calculadora.calcularBalanceTotal(datos);
-                        String analisis = calculadora.interpretarBalance(total);
-
-                        System.out.println("\n📊 RESULTADO:");
-                        System.out.println("Balance Total: " + String.format("%.2f", total) + " kWh");
-                        System.out.println("📌 ANÁLISIS: " + analisis);
-
-                    } catch (Exception e) {
-                        System.out.println("❌ Error: " + e.getMessage());
-                    }
-                    break;
-
-                // ==============================================
-                // OPCIÓN 6: GENERACIÓN DE REPORTES
-                // ==============================================
-                case 6:
-                    System.out.println("\n===== GENERADOR DE REPORTES =====");
-                    GeneradorReporte generador = new GeneradorReporte();
-                    RegistroEnergiaDAO daoReporte = new RegistroEnergiaDAO();
-
-                    System.out.print("Ingrese periodo (ej: Junio-2026): ");
-                    String periodo = scanner.nextLine();
-
-                    List<RegistroEnergia> datosReporte = daoReporte.listarTodos();
-                    if (datosReporte.isEmpty()) {
-                        System.out.println("⚠️ Sin datos para generar.");
-                        break;
-                    }
-
-                    String textoReporte = generador.generarReporteEficiencia(datosReporte, periodo);
-                    System.out.println("\n📄 REPORTE GENERADO:");
-                    System.out.println(textoReporte);
-                    break;
-
-                // ==============================================
-                // OPCIÓN 7: HERRAMIENTAS
-                // ==============================================
-                case 7:
-                    System.out.println("\n===== HERRAMIENTAS =====");
-                    System.out.println("1. Ordenar usuarios por nombre");
-                    System.out.println("2. Buscar equipo por modelo");
-                    System.out.println("3. Volver");
-                    System.out.print("Opción: ");
-                    int opcHer = scanner.nextInt();
-                    scanner.nextLine();
-
-                    if (opcHer == 1) {
-                        List<Usuario> lista = usuarioDao.listarTodos();
-                        lista.sort(Comparator.comparing(Usuario::getNombre));
-                        lista.forEach(u -> System.out.println("- " + u.getNombre()));
-                    } else if (opcHer == 2) {
-                        System.out.print("Modelo a buscar: ");
-                        String mod = scanner.nextLine().toLowerCase();
-                        List<EquipoSolar> todos = new EquipoSolarDAO().listarTodos();
-                        todos.stream().filter(e -> e.getModelo().toLowerCase().contains(mod)).forEach(e -> System.out.println("✅ Encontrado: " + e.getModelo()));
-                    }
-                    break;
-
-                // ==============================================
-                // OPCIÓN 8: SALIR
-                // ==============================================
-                case 8:
-                    System.out.println("👋 Gracias por usar Provincias Verdes. ¡Hasta luego!");
-                    break;
-
-                default:
-                    System.out.println("⚠️ Opción no válida. Intente nuevamente.");
-            }
-
-        } while (opcion != 8);
-
-        scanner.close();
+    private static void menuAdmin() {
+        System.out.println("\n--- ⚙️ ADMINISTRACIÓN DE USUARIOS ---");
+        List<Usuario> todos = usuarioDAO.listarTodos();
+        todos.forEach(u -> System.out.println("ID:"+u.getId()+" | Nombre:"+u.getNombre()+" | Tipo:"+u.getTipo()+" | Estado:"+u.getEstado()));
     }
 }
