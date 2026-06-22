@@ -5,7 +5,7 @@ public class Usuario {
     private String nombre;
     private String correo;
     private String contrasena;
-    private String perfil;
+    private String perfil; // ADMIN o RESIDENCIAL
 
     public Usuario() {}
 
@@ -35,6 +35,6 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" + "id=" + id + ", nombre='" + nombre + "', correo='" + correo + "', perfil='" + perfil + "'}";
+        return "ID: " + id + " | Nombre: " + nombre + " | Correo: " + correo + " | Perfil: " + perfil;
     }
 }
