@@ -1,120 +1,80 @@
 package com.provinciasverdes.persistencia;
 
+import com.provinciasverdes.enums.EstadoEquipo;
+import com.provinciasverdes.enums.TipoEquipo;
 import com.provinciasverdes.modelo.EquipoSolar;
-import com.provinciasverdes.modelo.enums.TipoEquipo;
-import com.provinciasverdes.modelo.enums.EstadoEquipo;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EquipoSolarDAO extends DAOBase<EquipoSolar> {
 
     @Override
-    public List<EquipoSolar> listarTodos() {
-        List<EquipoSolar> lista = new ArrayList<>();
-        String sql = "SELECT * FROM equipo_solar";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                lista.add(mapear(rs));
-            }
+    public boolean agregar(EquipoSolar equipo) {
+        Connection con = conexionDB.obtenerConexion();
+        if (con == null) return false;
+
+        String sql = "INSERT INTO equipos_solares (id_ubicacion, tipo, potencia, modelo, fecha_instalacion, estado) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, equipo.getIdUbicacion());
+            ps.setString(2, equipo.getTipo().name());
+            ps.setDouble(3, equipo.getPotenciaNominal());
+            ps.setString(4, equipo.getModelo());
+            ps.setTimestamp(5, Timestamp.valueOf(equipo.getFechaInstalacion()));
+            ps.setString(6, equipo.getEstado().name());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error listar equipos: " + e.getMessage());
+            System.err.println("❌ Error al agregar equipo: " + e.getMessage());
+            return false;
         }
-        return lista;
     }
 
-    public List<EquipoSolar> listarPorUbicacion(int idUbicacion) {
+    @Override
+    public boolean actualizar(EquipoSolar equipo) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminar(int id) {
+        return false;
+    }
+
+    @Override
+    public EquipoSolar obtenerPorId(int id) {
+        return null;
+    }
+
+    @Override
+    public List<EquipoSolar> obtenerTodos() {
+        return null;
+    }
+
+    public List<EquipoSolar> obtenerPorUbicacion(int idUbicacion) {
         List<EquipoSolar> lista = new ArrayList<>();
-        String sql = "SELECT * FROM equipo_solar WHERE id_ubicacion = ?";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection con = conexionDB.obtenerConexion();
+        if (con == null) return lista;
+
+        String sql = "SELECT * FROM equipos_solares WHERE id_ubicacion=?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idUbicacion);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                lista.add(mapear(rs));
-            }
+            while (rs.next()) lista.add(mapear(rs));
         } catch (SQLException e) {
-            System.out.println("Error listar por ubicación: " + e.getMessage());
+            System.err.println("❌ Error al listar equipos: " + e.getMessage());
         }
         return lista;
-    }
-
-    @Override
-    public EquipoSolar leer(int id) {
-        EquipoSolar eq = null;
-        String sql = "SELECT * FROM equipo_solar WHERE id = ?";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                eq = mapear(rs);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error leer equipo: " + e.getMessage());
-        }
-        return eq;
-    }
-
-    @Override
-    public boolean crear(EquipoSolar eq) {
-        String sql = "INSERT INTO equipo_solar (tipo, potencia_nominal, capacidad, fecha_instalacion, estado, id_ubicacion) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, eq.getTipo().name());
-            ps.setDouble(2, eq.getPotenciaNominal());
-            ps.setDouble(3, eq.getCapacidad());
-            ps.setTimestamp(4, Timestamp.valueOf(eq.getFechaInstalacion()));
-            ps.setString(5, eq.getEstado().name());
-            ps.setInt(6, eq.getIdUbicacion());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error crear equipo: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean actualizar(EquipoSolar eq) {
-        String sql = "UPDATE equipo_solar SET tipo=?, potencia_nominal=?, capacidad=?, estado=? WHERE id=?";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, eq.getTipo().name());
-            ps.setDouble(2, eq.getPotenciaNominal());
-            ps.setDouble(3, eq.getCapacidad());
-            ps.setString(4, eq.getEstado().name());
-            ps.setInt(5, eq.getId());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error actualizar equipo: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean borrar(int id) {
-        String sql = "DELETE FROM equipo_solar WHERE id = ?";
-        try (Connection conn = ConexionDB.getInstancia().getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error borrar equipo: " + e.getMessage());
-            return false;
-        }
     }
 
     private EquipoSolar mapear(ResultSet rs) throws SQLException {
-        EquipoSolar eq = new EquipoSolar();
-        eq.setId(rs.getInt("id"));
-        eq.setTipo(TipoEquipo.valueOf(rs.getString("tipo")));
-        eq.setPotenciaNominal(rs.getDouble("potencia_nominal"));
-        eq.setCapacidad(rs.getDouble("capacidad"));
-        eq.setFechaInstalacion(rs.getTimestamp("fecha_instalacion").toLocalDateTime());
-        eq.setEstado(EstadoEquipo.valueOf(rs.getString("estado")));
-        eq.setIdUbicacion(rs.getInt("id_ubicacion"));
-        return eq;
+        return new EquipoSolar(
+                rs.getInt("id"),
+                rs.getInt("id_ubicacion"),
+                TipoEquipo.valueOf(rs.getString("tipo")),
+                rs.getDouble("potencia"),
+                rs.getString("modelo"),
+                rs.getTimestamp("fecha_instalacion").toLocalDateTime(),
+                EstadoEquipo.valueOf(rs.getString("estado"))
+        );
     }
 }
