@@ -1,13 +1,6 @@
-package com.provinciasverdes.modelo.interfaces;
+package com.provinciasverdes.interfaces;
 
-import java.time.LocalDateTime;
-
-/**
- * Interfaz: Define comportamiento para todo aquello que se puede medir.
- * Cumple requisito TP4: Uso de Interfaces.
- */
 public interface IMedible {
-    void medir();
-    double obtenerPotenciaActual();
-    LocalDateTime obtenerUltimaLectura();
+    double obtenerMedicion();
+    String obtenerUnidadMedida();
 }
