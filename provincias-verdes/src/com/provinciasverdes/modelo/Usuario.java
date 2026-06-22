@@ -1,39 +1,40 @@
 package com.provinciasverdes.modelo;
 
-import com.provinciasverdes.modelo.enums.TipoUsuario;
-import com.provinciasverdes.modelo.enums.EstadoUsuario;
-
-public class Usuario extends EntidadBase {
+public class Usuario {
+    private int id;
     private String nombre;
-    private String email;
+    private String correo;
     private String contrasena;
-    private TipoUsuario tipo;
-    private EstadoUsuario estado;
+    private String perfil;
 
     public Usuario() {}
+
+    public Usuario(int id, String nombre, String correo, String contrasena, String perfil) {
+        this.id = id;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.contrasena = contrasena;
+        this.perfil = perfil;
+    }
+
+    // Getters y Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
 
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
-    public TipoUsuario getTipo() { return tipo; }
-    public void setTipo(TipoUsuario tipo) { this.tipo = tipo; }
-
-    public EstadoUsuario getEstado() { return estado; }
-    public void setEstado(EstadoUsuario estado) { this.estado = estado; }
+    public String getPerfil() { return perfil; }
+    public void setPerfil(String perfil) { this.perfil = perfil; }
 
     @Override
-    public void mostrarDatos() {
-        System.out.println("ID: " + id + " | Nombre: " + nombre + " | Email: " + email + " | Tipo: " + tipo);
-    }
-
-    @Override
-    public String paraArchivo() {
-        return id + ";" + nombre + ";" + email + ";" + tipo + ";" + estado;
+    public String toString() {
+        return "Usuario{" + "id=" + id + ", nombre='" + nombre + "', correo='" + correo + "', perfil='" + perfil + "'}";
     }
 }
