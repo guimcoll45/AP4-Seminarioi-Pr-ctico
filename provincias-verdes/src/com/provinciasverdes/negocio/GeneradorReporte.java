@@ -1,41 +1,37 @@
 package com.provinciasverdes.negocio;
 
+import com.provinciasverdes.modelo.Reporte;
 import com.provinciasverdes.modelo.RegistroEnergia;
-import com.provinciasverdes.archivos.GestorArchivos;
+import com.provinciasverdes.modelo.Usuario;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class GeneradorReporte {
 
-    public static String generarReporteEficiencia(List<RegistroEnergia> registros, String periodo) {
-        if (registros.isEmpty()) return "❌ No hay datos para generar el reporte.";
+    public static Reporte generarReporte(Usuario usuario, List<RegistroEnergia> registros) {
+        double totalGenerado = CalculadoraEnergetica.calcularTotalGenerado(registros);
+        double totalConsumido = CalculadoraEnergetica.calcularTotalConsumido(registros);
+        double saldo = CalculadoraEnergetica.calcularSaldoEnergia(registros);
 
-        double totalGen = 0, totalCon = 0, balance = 0;
-        for (RegistroEnergia r : registros) {
-            totalGen += r.getEnergiaGenerada();
-            totalCon += r.getEnergiaConsumida();
-            balance += r.getBalance();
-        }
-
-        double eficiencia = CalculadoraEnergetica.calcularEficienciaPorcentual(registros);
-        String estado = CalculadoraEnergetica.clasificarEficiencia(eficiencia);
-
-        return """
-==================================================
-📊 REPORTE DE EFICIENCIA ENERGÉTICA - %s
-==================================================
-✅ Total Energía Generada:  %.2f kWh
-🔌 Total Energía Consumida: %.2f kWh
-⚖️ Balance Energético:      %.2f kWh
-📈 Eficiencia del Sistema:  %.2f %%
-🔍 Estado del Sistema:      %s
-📋 Cantidad de mediciones:  %d
-==================================================
-""".formatted(periodo, totalGen, totalCon, balance, eficiencia, estado, registros.size());
+        return new Reporte(
+                0,
+                LocalDateTime.now(),
+                usuario,
+                registros,
+                totalGenerado,
+                totalConsumido,
+                saldo
+        );
     }
 
-    public static void generarYGuardarReporte(List<RegistroEnergia> registros, String nombreArchivo, String ruta) {
-        String contenido = generarReporteEficiencia(registros, nombreArchivo);
-        GestorArchivos.escribirArchivo(ruta, contenido);
-        System.out.println("💾 Reporte guardado en: " + ruta);
+    public static String exportarReporteTexto(Reporte reporte) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== REPORTE ENERGÉTICO ===\n");
+        sb.append("Fecha: ").append(reporte.getFechaGeneracion()).append("\n");
+        sb.append("Usuario: ").append(reporte.getUsuario().getNombre()).append("\n");
+        sb.append("Total generado: ").append(String.format("%.2f", reporte.getTotalGenerado())).append(" kWh\n");
+        sb.append("Total consumido: ").append(String.format("%.2f", reporte.getTotalConsumido())).append(" kWh\n");
+        sb.append("Saldo: ").append(String.format("%.2f", reporte.getSaldoEnergia())).append(" kWh\n");
+        return sb.toString();
     }
 }
