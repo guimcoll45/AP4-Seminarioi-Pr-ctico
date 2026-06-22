@@ -1,4 +1,4 @@
-public interface IMedible {
-    double obtenerPotenciaMaxima();
-    double calcularRendimiento();
+public interface IExportable {
+    String generarEncabezado();
+    String generarCuerpo();
 }
