@@ -7,78 +7,96 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO específico para Usuario. Contiene consultas SQL.
- */
 public class UsuarioDAO extends DAOBase<Usuario> {
 
     @Override
-    public boolean crear(Usuario usuario) {
-        String sql = "INSERT INTO usuario (nombre, email, contrasena, tipo, estado, id_perfil) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, usuario.getNombre());
-            pst.setString(2, usuario.getEmail());
-            pst.setString(3, usuario.getContrasena());
-            pst.setString(4, usuario.getTipo().name());
-            pst.setString(5, usuario.getEstado().name());
-            pst.setInt(6, usuario.getPerfil() != null ? usuario.getPerfil().getId() : 0);
-
-            return pst.executeUpdate() > 0;
-
-        } catch (SQLIntegrityConstraintViolationException e) {
-            System.err.println("❌ Error: El correo ya está registrado o dato inválido.");
-            return false;
+    public List<Usuario> listarTodos() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM usuario ORDER BY id";
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(mapearUsuario(rs));
+            }
         } catch (SQLException e) {
-            System.err.println("❌ Error UsuarioDAO.crear: " + e.getMessage());
-            return false;
+            System.err.println("❌ Error al listar usuarios: " + e.getMessage());
         }
+        return lista;
     }
 
     @Override
     public Usuario leer(int id) {
+        Usuario u = null;
         String sql = "SELECT * FROM usuario WHERE id = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setInt(1, id);
-            ResultSet rs = pst.executeQuery();
-
-            if(rs.next()) {
-                return new Usuario(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getString("email"),
-                    rs.getString("contrasena"),
-                    TipoUsuario.valueOf(rs.getString("tipo")),
-                    EstadoUsuario.valueOf(rs.getString("estado")),
-                    null // Aquí cargarías PerfilDAO.leer(rs.getInt("id_perfil"))
-                );
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                u = mapearUsuario(rs);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error UsuarioDAO.leer: " + e.getMessage());
+            System.err.println("❌ Error al leer usuario: " + e.getMessage());
         }
-        return null;
+        return u;
+    }
+
+    public Usuario buscarPorCorreoYClave(String correo, String clave) {
+        Usuario u = null;
+        String sql = "SELECT * FROM usuario WHERE email = ? AND contrasena = ? AND estado = 'ACTIVO'";
+        
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, correo.trim());
+            ps.setString(2, clave.trim());
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                u = mapearUsuario(rs);
+                System.out.println("✅ Usuario encontrado: " + u.getNombre() + " | Tipo: " + u.getTipo());
+            } else {
+                System.out.println("❌ Datos incorrectos o usuario no existe.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error de conexión: " + e.getMessage());
+        }
+        return u;
     }
 
     @Override
-    public boolean actualizar(Usuario usuario) {
-        String sql = "UPDATE usuario SET nombre=?, email=?, contrasena=?, tipo=?, estado=? WHERE id=?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, usuario.getNombre());
-            pst.setString(2, usuario.getEmail());
-            pst.setString(3, usuario.getContrasena());
-            pst.setString(4, usuario.getTipo().name());
-            pst.setString(5, usuario.getEstado().name());
-            pst.setInt(6, usuario.getId());
-
-            return pst.executeUpdate() > 0;
-
+    public boolean crear(Usuario u) {
+        String sql = "INSERT INTO usuario (nombre, email, contrasena, tipo, estado) VALUES (?, ?, ?, ?, ?)";
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, u.getNombre());
+            ps.setString(2, u.getEmail());
+            ps.setString(3, u.getContrasena());
+            ps.setString(4, u.getTipo().name());
+            ps.setString(5, u.getEstado().name());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Error UsuarioDAO.actualizar: " + e.getMessage());
+            System.err.println("❌ Error al crear usuario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean actualizar(Usuario u) {
+        String sql = "UPDATE usuario SET nombre=?, email=?, contrasena=?, tipo=?, estado=? WHERE id=?";
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, u.getNombre());
+            ps.setString(2, u.getEmail());
+            ps.setString(3, u.getContrasena());
+            ps.setString(4, u.getTipo().name());
+            ps.setString(5, u.getEstado().name());
+            ps.setInt(6, u.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Error al actualizar: " + e.getMessage());
             return false;
         }
     }
@@ -86,67 +104,24 @@ public class UsuarioDAO extends DAOBase<Usuario> {
     @Override
     public boolean borrar(int id) {
         String sql = "DELETE FROM usuario WHERE id = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setInt(1, id);
-            return pst.executeUpdate() > 0;
-
+        try (Connection con = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Error UsuarioDAO.borrar: " + e.getMessage() + " | Probablemente tiene ubicaciones asociadas.");
+            System.err.println("❌ Error al borrar: " + e.getMessage());
             return false;
         }
     }
 
-    @Override
-    public List<Usuario> listarTodos() {
-        List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM usuario ORDER BY nombre";
-        try (Connection conn = conexionDB.getConexion();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-
-            while(rs.next()) {
-                lista.add(new Usuario(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getString("email"),
-                    rs.getString("contrasena"),
-                    TipoUsuario.valueOf(rs.getString("tipo")),
-                    EstadoUsuario.valueOf(rs.getString("estado")),
-                    null
-                ));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error UsuarioDAO.listarTodos: " + e.getMessage());
-        }
-        return lista;
-    }
-
-    // Método específico para Login
-    public Usuario buscarPorCredenciales(String email, String pass) {
-        String sql = "SELECT * FROM usuario WHERE email = ? AND contrasena = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, email);
-            pst.setString(2, pass);
-            ResultSet rs = pst.executeQuery();
-
-            if(rs.next()) {
-                return new Usuario(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getString("email"),
-                    rs.getString("contrasena"),
-                    TipoUsuario.valueOf(rs.getString("tipo")),
-                    EstadoUsuario.valueOf(rs.getString("estado")),
-                    null
-                );
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error Login: " + e.getMessage());
-        }
-        return null;
+    private Usuario mapearUsuario(ResultSet rs) throws SQLException {
+        Usuario u = new Usuario();
+        u.setId(rs.getInt("id"));
+        u.setNombre(rs.getString("nombre"));
+        u.setEmail(rs.getString("email"));
+        u.setContrasena(rs.getString("contrasena"));
+        u.setTipo(TipoUsuario.valueOf(rs.getString("tipo")));
+        u.setEstado(EstadoUsuario.valueOf(rs.getString("estado")));
+        return u;
     }
 }
