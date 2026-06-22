@@ -1,17 +1,21 @@
 package com.provinciasverdes.negocio;
 
 import com.provinciasverdes.modelo.RegistroEnergia;
-import java.util.Date;
+import com.provinciasverdes.persistencia.RegistroEnergiaDAO;
+import java.util.List;
 
 public class GestorEnergia {
+    private final RegistroEnergiaDAO registroDAO = new RegistroEnergiaDAO();
 
-    public static double calcularPotencia(double voltaje, double corriente) {
-        return voltaje * corriente; // Watts
+    public boolean agregarRegistro(RegistroEnergia registro) {
+        if (!Validador.validarRegistro(registro)) {
+            System.out.println("⚠️ Registro inválido");
+            return false;
+        }
+        return registroDAO.agregar(registro);
     }
 
-    public static RegistroEnergia crearRegistroCalculado(int idEquipo, double voltaje, double corriente, double horasUso) {
-        double potencia = calcularPotencia(voltaje, corriente);
-        double energiaGenerada = (potencia * horasUso) / 1000; // kWh
-        return new RegistroEnergia(0, idEquipo, new Date(), voltaje, corriente, energiaGenerada, 0.0);
+    public List<RegistroEnergia> obtenerRegistrosPorEquipo(int idEquipo) {
+        return registroDAO.listarPorEquipo(idEquipo);
     }
 }
