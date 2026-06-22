@@ -1,52 +1,96 @@
 package com.provinciasverdes.modelo;
 
+import com.provinciasverdes.enums.EstadoEquipo;
+import com.provinciasverdes.enums.TipoEquipo;
+import com.provinciasverdes.interfaces.IMedible;
 import java.time.LocalDateTime;
 
-public class EquipoSolar {
-    private int id;
+public class EquipoSolar extends EntidadBase implements IMedible {
     private int idUbicacion;
-    private String tipo;
-    private double potencia;
+    private TipoEquipo tipo;
+    private double potenciaNominal;
     private String modelo;
     private LocalDateTime fechaInstalacion;
-    private String estado;
+    private EstadoEquipo estado;
 
     public EquipoSolar() {}
 
-    public EquipoSolar(int id, int idUbicacion, String tipo, double potencia, String modelo, LocalDateTime fechaInstalacion, String estado) {
-        this.id = id;
+    public EquipoSolar(int id, int idUbicacion, TipoEquipo tipo, double potenciaNominal, String modelo, LocalDateTime fechaInstalacion, EstadoEquipo estado) {
+        super(id);
         this.idUbicacion = idUbicacion;
         this.tipo = tipo;
-        this.potencia = potencia;
+        this.potenciaNominal = potenciaNominal;
         this.modelo = modelo;
         this.fechaInstalacion = fechaInstalacion;
         this.estado = estado;
     }
 
-    // Getters y Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getIdUbicacion() {
+        return idUbicacion;
+    }
 
-    public int getIdUbicacion() { return idUbicacion; }
-    public void setIdUbicacion(int idUbicacion) { this.idUbicacion = idUbicacion; }
+    public void setIdUbicacion(int idUbicacion) {
+        this.idUbicacion = idUbicacion;
+    }
 
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    public TipoEquipo getTipo() {
+        return tipo;
+    }
 
-    public double getPotencia() { return potencia; }
-    public void setPotencia(double potencia) { this.potencia = potencia; }
+    public void setTipo(TipoEquipo tipo) {
+        this.tipo = tipo;
+    }
 
-    public String getModelo() { return modelo; }
-    public void setModelo(String modelo) { this.modelo = modelo; }
+    public double getPotenciaNominal() {
+        return potenciaNominal;
+    }
 
-    public LocalDateTime getFechaInstalacion() { return fechaInstalacion; }
-    public void setFechaInstalacion(LocalDateTime fechaInstalacion) { this.fechaInstalacion = fechaInstalacion; }
+    public void setPotenciaNominal(double potenciaNominal) {
+        this.potenciaNominal = potenciaNominal;
+    }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    public LocalDateTime getFechaInstalacion() {
+        return fechaInstalacion;
+    }
+
+    public void setFechaInstalacion(LocalDateTime fechaInstalacion) {
+        this.fechaInstalacion = fechaInstalacion;
+    }
+
+    public EstadoEquipo getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoEquipo estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public double obtenerMedicion() {
+        return potenciaNominal;
+    }
+
+    @Override
+    public String obtenerUnidadMedida() {
+        return "kW";
+    }
 
     @Override
     public String toString() {
-        return "ID: " + id + " | Tipo: " + tipo + " | Potencia: " + potencia + "kW | Modelo: " + modelo + " | Estado: " + estado;
+        return "EquipoSolar{" +
+                "id=" + id +
+                ", tipo=" + tipo +
+                ", potencia=" + potenciaNominal + " kW" +
+                ", modelo='" + modelo + '\'' +
+                ", estado=" + estado +
+                '}';
     }
 }
