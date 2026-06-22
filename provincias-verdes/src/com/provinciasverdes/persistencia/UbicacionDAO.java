@@ -8,66 +8,84 @@ import java.util.List;
 public class UbicacionDAO extends DAOBase<Ubicacion> {
 
     @Override
-    public boolean crear(Ubicacion ubicacion) {
-        String sql = "INSERT INTO ubicacion (provincia, direccion, latitud, longitud, id_usuario) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, ubicacion.getProvincia());
-            pst.setString(2, ubicacion.getDireccion());
-            pst.setDouble(3, ubicacion.getLatitud());
-            pst.setDouble(4, ubicacion.getLongitud());
-            pst.setInt(5, ubicacion.getIdUsuario());
-
-            return pst.executeUpdate() > 0;
-
+    public List<Ubicacion> listarTodos() {
+        List<Ubicacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM ubicacion";
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(mapear(rs));
+            }
         } catch (SQLException e) {
-            System.err.println("❌ Error UbicacionDAO.crear: Verifique que el Usuario exista. " + e.getMessage());
+            System.out.println("Error listar ubicaciones: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public List<Ubicacion> listarPorUsuario(int idUsuario) {
+        List<Ubicacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM ubicacion WHERE id_usuario = ?";
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                lista.add(mapear(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error listar por usuario: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    @Override
+    public Ubicacion leer(int id) {
+        Ubicacion u = null;
+        String sql = "SELECT * FROM ubicacion WHERE id = ?";
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                u = mapear(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error leer ubicación: " + e.getMessage());
+        }
+        return u;
+    }
+
+    @Override
+    public boolean crear(Ubicacion u) {
+        String sql = "INSERT INTO ubicacion (provincia, direccion, latitud, longitud, id_usuario) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, u.getProvincia());
+            ps.setString(2, u.getDireccion());
+            ps.setDouble(3, u.getLatitud());
+            ps.setDouble(4, u.getLongitud());
+            ps.setInt(5, u.getIdUsuario());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error crear ubicación: " + e.getMessage());
             return false;
         }
     }
 
     @Override
-    public Ubicacion leer(int id) {
-        String sql = "SELECT * FROM ubicacion WHERE id = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setInt(1, id);
-            ResultSet rs = pst.executeQuery();
-
-            if(rs.next()) {
-                return new Ubicacion(
-                    rs.getInt("id"),
-                    rs.getString("provincia"),
-                    rs.getString("direccion"),
-                    rs.getDouble("latitud"),
-                    rs.getDouble("longitud"),
-                    rs.getInt("id_usuario")
-                );
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error UbicacionDAO.leer: " + e.getMessage());
-        }
-        return null;
-    }
-
-    @Override
-    public boolean actualizar(Ubicacion ubicacion) {
+    public boolean actualizar(Ubicacion u) {
         String sql = "UPDATE ubicacion SET provincia=?, direccion=?, latitud=?, longitud=? WHERE id=?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setString(1, ubicacion.getProvincia());
-            pst.setString(2, ubicacion.getDireccion());
-            pst.setDouble(3, ubicacion.getLatitud());
-            pst.setDouble(4, ubicacion.getLongitud());
-            pst.setInt(5, ubicacion.getId());
-
-            return pst.executeUpdate() > 0;
-
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, u.getProvincia());
+            ps.setString(2, u.getDireccion());
+            ps.setDouble(3, u.getLatitud());
+            ps.setDouble(4, u.getLongitud());
+            ps.setInt(5, u.getId());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Error UbicacionDAO.actualizar: " + e.getMessage());
+            System.out.println("Error actualizar ubicación: " + e.getMessage());
             return false;
         }
     }
@@ -75,54 +93,24 @@ public class UbicacionDAO extends DAOBase<Ubicacion> {
     @Override
     public boolean borrar(int id) {
         String sql = "DELETE FROM ubicacion WHERE id = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, id);
-            return pst.executeUpdate() > 0;
+        try (Connection conn = ConexionDB.getInstancia().getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Error: No se puede borrar, tiene equipos asociados.");
+            System.out.println("Error borrar ubicación: " + e.getMessage());
             return false;
         }
     }
 
-    @Override
-    public List<Ubicacion> listarTodos() {
-        List<Ubicacion> lista = new ArrayList<>();
-        String sql = "SELECT * FROM ubicacion";
-        try (Connection conn = conexionDB.getConexion();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-
-            while(rs.next()) {
-                lista.add(new Ubicacion(
-                    rs.getInt("id"),
-                    rs.getString("provincia"),
-                    rs.getString("direccion"),
-                    rs.getDouble("latitud"),
-                    rs.getDouble("longitud"),
-                    rs.getInt("id_usuario")
-                ));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error UbicacionDAO.listarTodos: " + e.getMessage());
-        }
-        return lista;
-    }
-
-    // Listar ubicaciones de un usuario específico
-    public List<Ubicacion> listarPorUsuario(int idUsuario) {
-        List<Ubicacion> lista = new ArrayList<>();
-        String sql = "SELECT * FROM ubicacion WHERE id_usuario = ?";
-        try (Connection conn = conexionDB.getConexion();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idUsuario);
-            ResultSet rs = pst.executeQuery();
-            while(rs.next()) {
-                lista.add(new Ubicacion(rs.getInt("id"), rs.getString("provincia"), rs.getString("direccion"), rs.getDouble("latitud"), rs.getDouble("longitud"), rs.getInt("id_usuario")));
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error listarPorUsuario: " + e.getMessage());
-        }
-        return lista;
+    private Ubicacion mapear(ResultSet rs) throws SQLException {
+        Ubicacion u = new Ubicacion();
+        u.setId(rs.getInt("id"));
+        u.setProvincia(rs.getString("provincia"));
+        u.setDireccion(rs.getString("direccion"));
+        u.setLatitud(rs.getDouble("latitud"));
+        u.setLongitud(rs.getDouble("longitud"));
+        u.setIdUsuario(rs.getInt("id_usuario"));
+        return u;
     }
 }
