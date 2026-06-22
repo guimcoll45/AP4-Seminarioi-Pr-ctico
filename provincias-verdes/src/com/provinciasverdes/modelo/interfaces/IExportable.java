@@ -1,11 +1,6 @@
-package com.provinciasverdes.modelo.interfaces;
+package com.provinciasverdes.interfaces;
 
-/**
- * Interfaz: Define comportamiento para exportar datos a archivos.
- */
 public interface IExportable {
-    String generarEncabezado();
-    String generarCuerpo();
-    void exportarCSV(String ruta);
-    void exportarTXT(String ruta);
+    String aTextoCSV();
+    String aTextoJSON();
 }
