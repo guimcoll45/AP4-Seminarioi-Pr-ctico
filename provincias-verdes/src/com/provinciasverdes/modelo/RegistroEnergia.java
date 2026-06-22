@@ -1,9 +1,9 @@
 package com.provinciasverdes.modelo;
 
+import com.provinciasverdes.interfaces.IExportable;
 import java.time.LocalDateTime;
 
-public class RegistroEnergia {
-    private int id;
+public class RegistroEnergia extends EntidadBase implements IExportable {
     private int idEquipo;
     private LocalDateTime fechaHora;
     private double voltaje;
@@ -14,7 +14,7 @@ public class RegistroEnergia {
     public RegistroEnergia() {}
 
     public RegistroEnergia(int id, int idEquipo, LocalDateTime fechaHora, double voltaje, double corriente, double energiaGenerada, double energiaConsumida) {
-        this.id = id;
+        super(id);
         this.idEquipo = idEquipo;
         this.fechaHora = fechaHora;
         this.voltaje = voltaje;
@@ -23,30 +23,78 @@ public class RegistroEnergia {
         this.energiaConsumida = energiaConsumida;
     }
 
-    // Getters y Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getIdEquipo() {
+        return idEquipo;
+    }
 
-    public int getIdEquipo() { return idEquipo; }
-    public void setIdEquipo(int idEquipo) { this.idEquipo = idEquipo; }
+    public void setIdEquipo(int idEquipo) {
+        this.idEquipo = idEquipo;
+    }
 
-    public LocalDateTime getFechaHora() { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
 
-    public double getVoltaje() { return voltaje; }
-    public void setVoltaje(double voltaje) { this.voltaje = voltaje; }
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
+    }
 
-    public double getCorriente() { return corriente; }
-    public void setCorriente(double corriente) { this.corriente = corriente; }
+    public double getVoltaje() {
+        return voltaje;
+    }
 
-    public double getEnergiaGenerada() { return energiaGenerada; }
-    public void setEnergiaGenerada(double energiaGenerada) { this.energiaGenerada = energiaGenerada; }
+    public void setVoltaje(double voltaje) {
+        this.voltaje = voltaje;
+    }
 
-    public double getEnergiaConsumida() { return energiaConsumida; }
-    public void setEnergiaConsumida(double energiaConsumida) { this.energiaConsumida = energiaConsumida; }
+    public double getCorriente() {
+        return corriente;
+    }
+
+    public void setCorriente(double corriente) {
+        this.corriente = corriente;
+    }
+
+    public double getEnergiaGenerada() {
+        return energiaGenerada;
+    }
+
+    public void setEnergiaGenerada(double energiaGenerada) {
+        this.energiaGenerada = energiaGenerada;
+    }
+
+    public double getEnergiaConsumida() {
+        return energiaConsumida;
+    }
+
+    public void setEnergiaConsumida(double energiaConsumida) {
+        this.energiaConsumida = energiaConsumida;
+    }
+
+    @Override
+    public String aTextoCSV() {
+        return id + "," + idEquipo + "," + fechaHora + "," + voltaje + "," + corriente + "," + energiaGenerada + "," + energiaConsumida;
+    }
+
+    @Override
+    public String aTextoJSON() {
+        return "{" +
+                "\"id\":" + id + "," +
+                "\"idEquipo\":" + idEquipo + "," +
+                "\"fechaHora\":\"" + fechaHora + "\"," +
+                "\"voltaje\":" + voltaje + "," +
+                "\"corriente\":" + corriente + "," +
+                "\"energiaGenerada\":" + energiaGenerada + "," +
+                "\"energiaConsumida\":" + energiaConsumida +
+                "}";
+    }
 
     @Override
     public String toString() {
-        return "Fecha: " + fechaHora + " | Generada: " + energiaGenerada + "kWh | Consumida: " + energiaConsumida + "kWh";
+        return "RegistroEnergia{" +
+                "fecha=" + fechaHora +
+                ", generada=" + energiaGenerada + " kWh" +
+                ", consumida=" + energiaConsumida + " kWh" +
+                '}';
     }
 }
