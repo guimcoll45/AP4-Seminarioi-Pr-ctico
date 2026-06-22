@@ -1,58 +1,41 @@
 package com.provinciasverdes.negocio;
 
 import com.provinciasverdes.modelo.RegistroEnergia;
-import com.provinciasverdes.archivos.GestorArchivos; // ✅ Agregado para poder guardar el reporte
+import com.provinciasverdes.archivos.GestorArchivos;
 import java.util.List;
 
-/**
- * Clase encargada de generar informes y reportes de rendimiento energético.
- * Pertenece a la capa de Negocio.
- */
 public class GeneradorReporte {
 
-    /**
-     * Genera un reporte de eficiencia energética en formato texto.
-     * @param registros Lista de mediciones a analizar
-     * @param periodo Descripción del periodo (ej: "Junio 2026", "Semana 1")
-     * @return Texto formateado con el informe
-     */
     public static String generarReporteEficiencia(List<RegistroEnergia> registros, String periodo) {
-        double totalGen = 0;
-        double totalCon = 0;
-        int cantidad = registros.size();
+        if (registros.isEmpty()) return "❌ No hay datos para generar el reporte.";
 
-        // Recorrer todos los registros para sumar valores
+        double totalGen = 0, totalCon = 0, balance = 0;
         for (RegistroEnergia r : registros) {
             totalGen += r.getEnergiaGenerada();
             totalCon += r.getEnergiaConsumida();
+            balance += r.getBalance();
         }
 
-        // Cálculo de eficiencia: (Excedente / Generada) * 100
-        // Si generó 0, eficiencia es 0
-        double eficiencia = (totalGen > 0) ? ((totalGen - totalCon) / totalGen) * 100 : 0;
-        
-        // Determinar estado del sistema
-        String estado = (eficiencia >= 75) ? "✅ ÓPTIMO" : 
-                        (eficiencia >= 50) ? "⚠️ ACEPTABLE" : 
-                        "🔴 BAJO RENDIMIENTO";
+        double eficiencia = CalculadoraEnergetica.calcularEficienciaPorcentual(registros);
+        String estado = CalculadoraEnergetica.clasificarEficiencia(eficiencia);
 
-        // Construir el texto del reporte
-        return "==================================================\n" +
-               "📊 REPORTE DE EFICIENCIA ENERGÉTICA - PERIODO: " + periodo + "\n" +
-               "==================================================\n" +
-               "✅ Total Energía Generada:  " + String.format("%.2f", totalGen) + " kWh\n" +
-               "🔌 Total Energía Consumida: " + String.format("%.2f", totalCon) + " kWh\n" +
-               "⚖️ Balance Energético:      " + String.format("%.2f", (totalGen - totalCon)) + " kWh\n" +
-               "📈 Eficiencia del Sistema:  " + String.format("%.1f", eficiencia) + " %\n" +
-               "🔍 Estado del Sistema:      " + estado + "\n" +
-               "📋 Cantidad de mediciones:  " + cantidad + "\n" +
-               "==================================================";
+        return """
+==================================================
+📊 REPORTE DE EFICIENCIA ENERGÉTICA - %s
+==================================================
+✅ Total Energía Generada:  %.2f kWh
+🔌 Total Energía Consumida: %.2f kWh
+⚖️ Balance Energético:      %.2f kWh
+📈 Eficiencia del Sistema:  %.2f %%
+🔍 Estado del Sistema:      %s
+📋 Cantidad de mediciones:  %d
+==================================================
+""".formatted(periodo, totalGen, totalCon, balance, eficiencia, estado, registros.size());
     }
 
-    // ✅ MÉTODO NUEVO: Para guardar el reporte automáticamente
-    public static void generarYGuardarReporte(List<RegistroEnergia> registros, String periodo, String rutaArchivo) {
-        String contenido = generarReporteEficiencia(registros, periodo);
-        GestorArchivos.guardarArchivo(rutaArchivo, contenido);
-        System.out.println("📂 Reporte guardado exitosamente en: " + rutaArchivo);
+    public static void generarYGuardarReporte(List<RegistroEnergia> registros, String nombreArchivo, String ruta) {
+        String contenido = generarReporteEficiencia(registros, nombreArchivo);
+        GestorArchivos.escribirArchivo(ruta, contenido);
+        System.out.println("💾 Reporte guardado en: " + ruta);
     }
 }
