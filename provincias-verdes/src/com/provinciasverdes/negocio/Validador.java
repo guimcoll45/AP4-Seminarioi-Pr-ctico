@@ -1,36 +1,38 @@
 package com.provinciasverdes.negocio;
 
-import java.time.LocalDateTime;
+import com.provinciasverdes.modelo.Ubicacion;
+import com.provinciasverdes.modelo.EquipoSolar;
+import com.provinciasverdes.modelo.RegistroEnergia;
 
-/**
- * Clase de utilidad para validaciones de negocio.
- * Cumple RNF4: Integridad y validación de datos.
- */
 public class Validador {
 
-    // Validar que un texto no esté vacío
-    public static boolean textoNoVacio(String texto) {
-        return texto != null && !texto.isBlank();
+    public static boolean validarCorreo(String correo) {
+        return correo != null && correo.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
 
-    // Validar rango de coordenadas
-    public static boolean coordenadaValida(double valor, boolean esLatitud) {
-        if(esLatitud) return valor >= -90 && valor <= 90;
-        else return valor >= -180 && valor <= 180;
+    public static boolean validarContrasena(String contrasena) {
+        return contrasena != null && contrasena.length() >= 4;
     }
 
-    // Validar que un número sea positivo
-    public static boolean numeroPositivo(double numero) {
-        return numero > 0;
+    public static boolean validarUbicacion(Ubicacion ubicacion) {
+        return ubicacion != null &&
+                !ubicacion.getProvincia().isBlank() &&
+                !ubicacion.getDireccion().isBlank() &&
+                ubicacion.getLatitud() >= -90 && ubicacion.getLatitud() <= 90 &&
+                ubicacion.getLongitud() >= -180 && ubicacion.getLongitud() <= 180;
     }
 
-    // Validar que fecha no sea futura
-    public static boolean fechaNoFutura(LocalDateTime fecha) {
-        return fecha != null && fecha.isBefore(LocalDateTime.now().plusSeconds(1));
+    public static boolean validarEquipo(EquipoSolar equipo) {
+        return equipo != null &&
+                equipo.getTipo() != null &&
+                equipo.getPotenciaNominal() > 0 &&
+                !equipo.getModelo().isBlank();
     }
 
-    // Validar formato de email simple
-    public static boolean emailValido(String email) {
-        return email != null && email.contains("@") && email.contains(".");
+    public static boolean validarRegistro(RegistroEnergia registro) {
+        return registro != null &&
+                registro.getFechaHora() != null &&
+                registro.getEnergiaGenerada() >= 0 &&
+                registro.getEnergiaConsumida() >= 0;
     }
 }
