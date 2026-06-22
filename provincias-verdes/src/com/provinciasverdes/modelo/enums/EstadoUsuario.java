@@ -1,6 +1,7 @@
-package com.provinciasverdes.modelo.enums;
+package com.provinciasverdes.enums;
 
 public enum EstadoUsuario {
     ACTIVO,
-    INACTIVO
+    INACTIVO,
+    SUSPENDIDO
 }
