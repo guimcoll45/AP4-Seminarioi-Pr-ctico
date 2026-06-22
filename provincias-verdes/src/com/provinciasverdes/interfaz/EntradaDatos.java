@@ -1,43 +1,40 @@
 package com.provinciasverdes.interfaz;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class EntradaDatos {
-    private static Scanner sc = new Scanner(System.in);
+    private static final Scanner sc = new Scanner(System.in);
+
+    public static String leerCadena(String mensaje) {
+        System.out.print(mensaje + ": ");
+        return sc.nextLine().trim();
+    }
 
     public static int leerEntero(String mensaje) {
-        int dato;
+        int valor;
         while (true) {
-            try {
-                System.out.print(mensaje);
-                dato = sc.nextInt();
+            System.out.print(mensaje + ": ");
+            if (sc.hasNextInt()) {
+                valor = sc.nextInt();
                 sc.nextLine();
-                return dato;
-            } catch (InputMismatchException e) {
-                System.out.println("❌ Error: Debe ingresar un número entero.");
-                sc.nextLine();
+                return valor;
             }
+            System.out.println("⚠️ Ingrese un número válido");
+            sc.nextLine();
         }
     }
 
-    public static double leerDouble(String mensaje) {
-        double dato;
+    public static double leerDoble(String mensaje) {
+        double valor;
         while (true) {
-            try {
-                System.out.print(mensaje);
-                dato = sc.nextDouble();
+            System.out.print(mensaje + ": ");
+            if (sc.hasNextDouble()) {
+                valor = sc.nextDouble();
                 sc.nextLine();
-                return dato;
-            } catch (InputMismatchException e) {
-                System.out.println("❌ Error: Debe ingresar un número válido.");
-                sc.nextLine();
+                return valor;
             }
+            System.out.println("⚠️ Ingrese un valor numérico válido");
+            sc.nextLine();
         }
-    }
-
-    public static String leerTexto(String mensaje) {
-        System.out.print(mensaje);
-        return sc.nextLine().trim();
     }
 }
