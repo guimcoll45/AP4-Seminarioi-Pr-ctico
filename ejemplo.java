@@ -1,12 +1,16 @@
-// Constructor parametrizado
-Usuario usuario = new Usuario(
-    "Juan Perez",
-    "juan@mail.com",
-    "1234",
-    "USUARIO_FINAL"
-);
+// Captura de valores no numéricos
+try {
+    System.out.print("Ingrese voltaje: ");
+    double voltaje = scanner.nextDouble();
+} catch (InputMismatchException e) {
+    System.out.println("❌ Valor inválido: debe ingresar un número.");
+    scanner.next();
+}
 
-// Constructor vacío
-Usuario usuarioVacio = new Usuario();
-usuarioVacio.setNombre("María Gómez");
-usuarioVacio.setCorreo("maria@mail.com");
+// Captura de errores en la base de datos
+try {
+    PreparedStatement ps = conexion.prepareStatement(sql);
+    ps.executeUpdate();
+} catch (SQLException e) {
+    System.out.println("❌ Error: Verifique que los datos asociados existan.");
+}
