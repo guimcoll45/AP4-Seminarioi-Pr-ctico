@@ -1,16 +1,18 @@
-// Captura de valores no numéricos
-try {
-    System.out.print("Ingrese voltaje: ");
-    double voltaje = scanner.nextDouble();
-} catch (InputMismatchException e) {
-    System.out.println("❌ Valor inválido: debe ingresar un número.");
-    scanner.next();
-}
+public class Usuario extends EntidadBase {
+    private String nombre;
+    private String correo;
+    private String contrasena;
+    private String perfil;
 
-// Captura de errores en la base de datos
-try {
-    PreparedStatement ps = conexion.prepareStatement(sql);
-    ps.executeUpdate();
-} catch (SQLException e) {
-    System.out.println("❌ Error: Verifique que los datos asociados existan.");
+    public String getNombre() { return nombre; }
+
+    public void setNombre(String nombre) {
+        if (nombre != null && !nombre.isBlank()) {
+            this.nombre = nombre;
+        } else {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+    }
+
+    // Resto de getters y setters
 }
