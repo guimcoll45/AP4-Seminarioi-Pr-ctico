@@ -1,17 +1,12 @@
-String sql = "SELECT * FROM usuarios WHERE id = ?";
+String sql = "UPDATE usuarios SET correo = ?, perfil = ? WHERE id = ?";
 try (Connection conn = getConexion();
      PreparedStatement ps = conn.prepareStatement(sql)) {
 
-    ps.setInt(1, id);
-    ResultSet rs = ps.executeQuery();
-
-    if (rs.next()) {
-        Usuario u = new Usuario();
-        u.setId(rs.getInt("id"));
-        u.setNombre(rs.getString("nombre"));
-        u.setCorreo(rs.getString("correo"));
-    }
+    ps.setString(1, nuevoCorreo);
+    ps.setString(2, nuevoPerfil);
+    ps.setInt(3, id);
+    ps.executeUpdate();
 
 } catch (SQLException e) {
-    System.err.println("❌ Error al consultar: " + e.getMessage());
+    System.err.println("❌ Error al actualizar: " + e.getMessage());
 }
