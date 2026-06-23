@@ -1,8 +1,5 @@
-public Usuario buscarPorCorreo(String correo, ArrayList<Usuario> lista) {
-    for (Usuario u : lista) {
-        if (u.getCorreo().equalsIgnoreCase(correo)) {
-            return u;
-        }
-    }
-    return null;
-}
+// Ordenar usuarios alfabéticamente
+Collections.sort(listaUsuarios, Comparator.comparing(Usuario::getNombre));
+
+// Ordenar mediciones de mayor a menor generación
+Collections.sort(listaMediciones, Comparator.comparingDouble(RegistroEnergia::getGenerada).reversed());
