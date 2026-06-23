@@ -1,18 +1,8 @@
+public abstract class EntidadBase {
+    protected int id;
+    public abstract void mostrarDatos();
+}
+
 public class Usuario extends EntidadBase {
-    private String nombre;
-    private String correo;
-    private String contrasena;
-    private String perfil;
-
-    public String getNombre() { return nombre; }
-
-    public void setNombre(String nombre) {
-        if (nombre != null && !nombre.isBlank()) {
-            this.nombre = nombre;
-        } else {
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
-        }
-    }
-
-    // Resto de getters y setters
+    // Atributos y métodos propios
 }
