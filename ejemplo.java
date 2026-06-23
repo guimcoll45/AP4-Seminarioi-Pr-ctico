@@ -1,34 +1,31 @@
-package com.provinciasverdes.modelo;
+package com.provinciasverdes.persistencia;
 
-public class Ubicacion extends EntidadBase {
-    private String direccion;
-    private String ciudad;
-    private String provincia;
-    private String codigoPostal;
-    private Integer idUsuario;
+import java.sql.*;
 
-    public Ubicacion() {}
+public class ConexionDB {
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/provincias_verdes?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&useUnicode=true&characterEncoding=utf8";
+    private static final String USUARIO = "root";
+    private static final String CLAVE = "";
 
-    // Getters y Setters
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
-    public String getProvincia() { return provincia; }
-    public void setProvincia(String provincia) { this.provincia = provincia; }
-    public String getCodigoPostal() { return codigoPostal; }
-    public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
-    public Integer getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
+    private static ConexionDB instancia;
+    private Connection conexion;
 
-    @Override
-    public void mostrarDatos() {
-        System.out.printf("ID: %d | %s, %s, %s | CP: %s%n",
-                getId(), provincia, ciudad, direccion, codigoPostal != null ? codigoPostal : "Sin CP");
+    private ConexionDB() {}
+
+    public static ConexionDB getInstancia() {
+        if (instancia == null) instancia = new ConexionDB();
+        return instancia;
     }
 
-    @Override
-    public String paraArchivo() {
-        return getId() + ";" + provincia + ";" + ciudad + ";" + direccion + ";" + (codigoPostal != null ? codigoPostal : "");
+    public Connection getConexion() {
+        try {
+            if (conexion != null && !conexion.isClosed()) conexion.close();
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conexion = DriverManager.getConnection(URL, USUARIO, CLAVE);
+            return conexion;
+        } catch (Exception e) {
+            System.err.println("❌ Error de conexión: " + e.getMessage());
+            return null;
+        }
     }
 }
