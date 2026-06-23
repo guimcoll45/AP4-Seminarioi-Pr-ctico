@@ -1,18 +1,8 @@
-// Constructor vacío
-public Usuario() { }
-
-// Constructor parametrizado
-public Usuario(String nombre, String correo, String contrasena, String perfil) {
-    this.nombre = nombre;
-    this.correo = correo;
-    this.contrasena = contrasena;
-    this.perfil = perfil;
+if (correoIngresado.equals(usuarioRegistrado.getCorreo()) &&
+    contrasenaIngresada.equals(usuarioRegistrado.getContrasena())) {
+    if (usuarioRegistrado.getPerfil().equals("ADMIN")) {
+        mostrarMenuCompleto();
+    } else {
+        mostrarMenuRestringido();
+    }
 }
-
-// Instanciación y uso
-Usuario usuario = new Usuario(
-    "Juan Perez",
-    "juan@mail.com",
-    "1234",
-    "Final"
-);
