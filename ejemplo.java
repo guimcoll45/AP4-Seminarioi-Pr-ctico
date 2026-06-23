@@ -1,6 +1,7 @@
-public String calcularBalance(double generada, double consumida) {
-    double balance = generada - consumida;
-    if (balance > 0) return "Excedente: " + balance + " kWh";
-    else if (balance < 0) return "Déficit: " + Math.abs(balance) + " kWh";
-    else return "Balance neutro";
+try {
+    System.out.print("Ingrese el voltaje: ");
+    double voltaje = scanner.nextDouble();
+} catch (InputMismatchException e) {
+    System.out.println("❌ Valor inválido. Debe ingresar un número.");
+    scanner.next(); // Limpia el valor incorrecto del búfer
 }
