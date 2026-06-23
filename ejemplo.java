@@ -1,11 +1,12 @@
-public interface IExportable {
-    void exportarPDF();
-    void exportarCSV();
-}
+// Mismo método, comportamiento diferente
+EntidadBase entidad1 = new Usuario();
+EntidadBase entidad2 = new EquipoSolar();
 
-public class Reporte implements IExportable {
-    @Override
-    public void exportarPDF() { /* Lógica de generación */ }
-    @Override
-    public void exportarCSV() { /* Lógica de generación */ }
-}
+entidad1.mostrarDatos(); // Muestra datos de usuario
+entidad2.mostrarDatos(); // Muestra datos de equipo
+
+// Uso con interfaz
+IExportable reporte = new ReporteMensual();
+reporte.exportarPDF();
+reporte = new ReporteAnual();
+reporte.exportarPDF();
