@@ -1,11 +1,15 @@
-import java.util.ArrayList;
-
-// Colección dinámica para almacenar usuarios
-ArrayList<Usuario> listaUsuarios = new ArrayList<>();
-listaUsuarios.add(new Usuario("Juan", "juan@mail.com", "ADMINISTRADOR"));
-listaUsuarios.add(new Usuario("Ana", "ana@mail.com", "RESIDENCIAL"));
+// Opciones fijas del menú principal
+String[] opcionesMenu = {
+    "Gestión de Usuarios",
+    "Gestión de Ubicaciones",
+    "Gestión de Equipos",
+    "Registrar Medición",
+    "Ver Balance Energético",
+    "Exportar Reportes",
+    "Salir"
+};
 
 // Recorrido
-for (Usuario u : listaUsuarios) {
-    System.out.println(u.getNombre());
+for (int i = 0; i < opcionesMenu.length; i++) {
+    System.out.println((i+1) + ". " + opcionesMenu[i]);
 }
