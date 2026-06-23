@@ -1,11 +1,18 @@
-public interface IExportable {
-    void exportarPDF();
-    void exportarCSV();
-}
+public class Usuario extends EntidadBase {
+    private String nombre;
+    private String correo;
+    private String contrasena;
+    private String perfil;
 
-public class Reporte implements IExportable {
-    @Override
-    public void exportarPDF() { /* Lógica de generación */ }
-    @Override
-    public void exportarCSV() { /* Lógica de generación */ }
+    public String getNombre() { return nombre; }
+
+    public void setNombre(String nombre) {
+        if (nombre != null && !nombre.isBlank()) {
+            this.nombre = nombre;
+        } else {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+    }
+
+    // Resto de getters y setters
 }
