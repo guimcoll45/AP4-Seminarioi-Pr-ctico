@@ -1,20 +1,13 @@
-public class Usuario extends EntidadBase {
-    private String nombre;
-    private String correo;
-    private String contrasena;
-    private String perfil;
+// Superclase
+public abstract class EntidadBase {
+    protected int id;
+    public abstract void mostrarDatos();
+}
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        if (nombre != null && !nombre.trim().isEmpty()) {
-            this.nombre = nombre;
-        } else {
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
-        }
-    }
-
-    // Resto de getters y setters
+// Subclase que hereda
+public class EquipoSolar extends EntidadBase {
+    private String marca;
+    private double potencia;
+    private String tipo;
+    // ... resto de atributos y métodos
 }
