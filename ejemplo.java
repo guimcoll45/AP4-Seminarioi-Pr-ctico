@@ -1,12 +1,12 @@
-// Mismo método, comportamiento diferente
-EntidadBase entidad1 = new Usuario();
-EntidadBase entidad2 = new EquipoSolar();
+// Constructor parametrizado
+Usuario usuario = new Usuario(
+    "Juan Perez",
+    "juan@mail.com",
+    "1234",
+    "USUARIO_FINAL"
+);
 
-entidad1.mostrarDatos(); // Muestra datos de usuario
-entidad2.mostrarDatos(); // Muestra datos de equipo
-
-// Uso con interfaz
-IExportable reporte = new ReporteMensual();
-reporte.exportarPDF();
-reporte = new ReporteAnual();
-reporte.exportarPDF();
+// Constructor vacío
+Usuario usuarioVacio = new Usuario();
+usuarioVacio.setNombre("María Gómez");
+usuarioVacio.setCorreo("maria@mail.com");
