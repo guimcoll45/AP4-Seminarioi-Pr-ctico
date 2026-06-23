@@ -1,19 +1,13 @@
-// Interfaz que define un comportamiento
-public interface IExportable {
-    void exportarPDF();
-    void exportarCSV();
-}
+// Tratamiento polimórfico mediante interfaz
+IExportable reporte = new ReporteMensual();
+reporte.exportarPDF(); // Ejecuta la lógica propia de ReporteMensual
 
-// Clase que implementa la interfaz
-public class Reporte implements IExportable {
-    @Override
-    public void exportarPDF() {
-        System.out.println("Generando reporte en formato PDF...");
-        // Lógica interna de generación oculta al usuario
-    }
+reporte = new ReporteAnual();
+reporte.exportarPDF(); // Ejecuta la lógica propia de ReporteAnual
 
-    @Override
-    public void exportarCSV() {
-        System.out.println("Generando reporte en formato CSV...");
-    }
-}
+// Tratamiento polimórfico mediante herencia
+EntidadBase entidad1 = new Usuario();
+entidad1.mostrarDatos(); // Muestra información de usuario
+
+EntidadBase entidad2 = new EquipoSolar();
+entidad2.mostrarDatos(); // Muestra información del equipo
