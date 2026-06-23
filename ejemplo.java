@@ -1,13 +1,19 @@
-// Superclase
-public abstract class EntidadBase {
-    protected int id;
-    public abstract void mostrarDatos();
+// Interfaz que define un comportamiento
+public interface IExportable {
+    void exportarPDF();
+    void exportarCSV();
 }
 
-// Subclase que hereda
-public class EquipoSolar extends EntidadBase {
-    private String marca;
-    private double potencia;
-    private String tipo;
-    // ... resto de atributos y métodos
+// Clase que implementa la interfaz
+public class Reporte implements IExportable {
+    @Override
+    public void exportarPDF() {
+        System.out.println("Generando reporte en formato PDF...");
+        // Lógica interna de generación oculta al usuario
+    }
+
+    @Override
+    public void exportarCSV() {
+        System.out.println("Generando reporte en formato CSV...");
+    }
 }
