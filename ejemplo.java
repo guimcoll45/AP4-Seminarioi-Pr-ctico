@@ -1,7 +1,8 @@
-try {
-    PreparedStatement ps = conexion.prepareStatement(sql);
-    ps.setInt(1, idEquipo);
-    ps.executeUpdate();
-} catch (SQLException e) {
-    System.out.println("❌ Error en la operación: " + e.getMessage());
+public Usuario buscarPorCorreo(String correo, ArrayList<Usuario> lista) {
+    for (Usuario u : lista) {
+        if (u.getCorreo().equalsIgnoreCase(correo)) {
+            return u;
+        }
+    }
+    return null;
 }
