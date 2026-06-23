@@ -1,13 +1,18 @@
-// Tratamiento polimórfico mediante interfaz
-IExportable reporte = new ReporteMensual();
-reporte.exportarPDF(); // Ejecuta la lógica propia de ReporteMensual
+// Constructor vacío
+public Usuario() { }
 
-reporte = new ReporteAnual();
-reporte.exportarPDF(); // Ejecuta la lógica propia de ReporteAnual
+// Constructor parametrizado
+public Usuario(String nombre, String correo, String contrasena, String perfil) {
+    this.nombre = nombre;
+    this.correo = correo;
+    this.contrasena = contrasena;
+    this.perfil = perfil;
+}
 
-// Tratamiento polimórfico mediante herencia
-EntidadBase entidad1 = new Usuario();
-entidad1.mostrarDatos(); // Muestra información de usuario
-
-EntidadBase entidad2 = new EquipoSolar();
-entidad2.mostrarDatos(); // Muestra información del equipo
+// Instanciación y uso
+Usuario usuario = new Usuario(
+    "Juan Perez",
+    "juan@mail.com",
+    "1234",
+    "Final"
+);
