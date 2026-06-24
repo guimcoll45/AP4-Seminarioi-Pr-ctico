@@ -1,268 +1,80 @@
-\# ☀️SISTEMA PROVINCIAS VERDES
+# ⚡ Provincias Verdes — Sistema de Gestión Energética Solar
 
-\*\*Sistema de Gestión y Monitoreo de Energía Solar Renovable\*\*
+**Sistema de escritorio desarrollado en Java con conexión a base de datos MySQL**, diseñado para administrar instalaciones solares, registrar mediciones de energía y generar informes de rendimiento.
 
+---
 
+## 📋 Funcionalidades principales
+- Registro y autenticación de usuarios con distintos perfiles de acceso
+- Gestión de ubicaciones y equipos solares
+- Carga y almacenamiento de mediciones de energía generada y consumida
+- Registro de voltaje y corriente en cada medición
+- Cálculo automático de balance energético y eficiencia del sistema
+- Generación de reportes en formato `.txt` y `.csv`
+- Respaldo y recuperación de datos en archivos de texto
 
-Proyecto desarrollado en Java con conexión a base de datos MySQL, diseñado para administrar ubicaciones, equipos solares, registrar mediciones de energía y generar reportes de eficiencia y balance energético.
+---
 
+## 🛠️ Tecnologías utilizadas
+- **Lenguaje**: Java 17 o superior
+- **Base de datos**: MySQL 8.x
+- **Conector**: MySQL Connector/J 9.x
+- **Patrón de diseño**: DAO (Data Access Object)
+- **Arquitectura**: Separación en capas:
+  - `modelo`: Clases de entidad y enumeraciones
+  - `negocio`: Lógica de cálculo y validaciones
+  - `persistencia`: Conexión y acceso a la base de datos
+  - `interfaz`: Menús y entrada de datos
+  - `archivos`: Gestión de respaldos y exportaciones
+  - `interfaces`: Definición de contratos para las clases
 
+---
 
-\---
+## 🚀 Pasos para ejecutar el proyecto
 
+### 1. Requisitos previos
+- Tener instalado **JDK 17+**
+- Tener instalado **MySQL Server**
+- Tener configurada la variable de entorno `JAVA_HOME`
 
+### 2. Crear la base de datos
+- Ejecutá el script que está en la carpeta `sql/provincias_verdes.sql` en tu gestor de MySQL (phpMyAdmin, MySQL Workbench, etc.)
+- Esto creará la base `provincias_verdes` y todas las tablas necesarias
 
-\## 📋 CARACTERÍSTICAS PRINCIPALES
+### 3. Configurar la conexión
+- En el archivo `src/com/provinciasverdes/persistencia/ConexionDB.java` verifica los datos:
+```java
+private static final String URL = "jdbc:mysql://localhost:3306/provincias_verdes";
+private static final String USUARIO = "tu_usuario";
+private static final String CLAVE = "tu_contraseña";
 
-✅ Gestión de usuarios (Administradores y Usuarios)
+###4. Compilar y ejecutar
+Desde la carpeta raíz del proyecto:
 
-✅ Registro de ubicaciones geográficas
+# Compilar
+javac -cp "lib/mysql-connector-j-9.x.jar" -d bin src/com/provinciasverdes/**/*.java
 
-✅ Administración de equipos solares
+# Ejecutar
+java -cp "bin;lib/mysql-connector-j-9.x.jar" com.provinciasverdes.interfaz.Main
 
-✅ Carga de mediciones de energía (generada y consumida)
-
-✅ Cálculo automático de balance energético
-
-✅ Generación de reportes por periodo
-
-✅ Herramientas de búsqueda y ordenamiento
-
-✅ Validaciones y control de errores
-
-
-
-\---
-
-
-
-\## 🗂️ ESTRUCTURA DEL PROYECTO
-
+##📁 Estructura del proyecto
 provincias-verdes/
-
-├── 📁 src/
-
-│ └── 📁 com/
-
-│ └── 📁 provinciasverdes/
-
-│ ├── 📁 modelo/ # Clases de entidad (Usuario, Ubicacion, etc.)
-
-│ ├── 📁 persistencia/ # Conexión a BD y operaciones CRUD (DAO)
-
-│ ├── 📁 negocio/ # Lógica de negocio (cálculos, reportes)
-
-│ └── 📁 interfaz/ # Menú principal y ejecución
-
-├── 📁 lib/ # Librerías externas (MySQL Connector)
-
-├── 📁 bin/ # Archivos compilados (se genera al compilar)
-
-└── 📄 README.md # Este archivo
-
-
-
-\---
-
-
-
-\## ⚙️ TECNOLOGÍAS UTILIZADAS
-
-\- \*\*Lenguaje:\*\* Java 26
-
-\- \*\*Base de Datos:\*\* MySQL
-
-\- \*\*Conector:\*\* mysql-connector-java
-
-\- \*\*Patrón de Diseño:\*\* MVC (Modelo - Vista - Controlador) y DAO
-
-
-
-\---
-
-
-
-\## 🚀 INSTALACIÓN Y CONFIGURACIÓN
-
-
-
-\### 1. REQUISITOS PREVIOS
-
-\- Tener instalado \*\*JDK 26\*\* o superior
-
-\- Tener instalado \*\*MySQL\*\* (o XAMPP)
-
-\- Tener el archivo `mysql-connector-java.jar` dentro de la carpeta `lib/`
-
-
-
-\### 2. BASE DE DATOS
-
-1\. Abrir tu gestor de MySQL (Workbench, phpMyAdmin, consola)
-
-2\. Ejecutar el siguiente script para crear la base y las tablas:
-
-
-
-```sql
-
-CREATE DATABASE provinciasverdes;
-
-USE provinciasverdes;
-
-
-
-\\\\-- Tabla de Usuarios
-
-CREATE TABLE usuarios (
-
-\\\&#x20;   id INT AUTO\\\\\\\_INCREMENT PRIMARY KEY,
-
-\\\&#x20;   nombre VARCHAR(100) NOT NULL,
-
-\\\&#x20;   correo VARCHAR(100) NOT NULL UNIQUE,
-
-\\\&#x20;   contrasena VARCHAR(50) NOT NULL,
-
-\\\&#x20;   perfil VARCHAR(20) NOT NULL
-
-);
-
-
-
-\\\\-- Tabla de Ubicaciones
-
-CREATE TABLE ubicaciones (
-
-\\\&#x20;   id INT AUTO\\\\\\\_INCREMENT PRIMARY KEY,
-
-\\\&#x20;   id\\\\\\\_usuario INT NOT NULL,
-
-\\\&#x20;   provincia VARCHAR(100) NOT NULL,
-
-\\\&#x20;   direccion VARCHAR(200) NOT NULL,
-
-\\\&#x20;   latitud DOUBLE NOT NULL,
-
-\\\&#x20;   longitud DOUBLE NOT NULL,
-
-\\\&#x20;   FOREIGN KEY (id\\\\\\\_usuario) REFERENCES usuarios(id)
-
-);
-
-
-
-\\\\-- Tabla de Equipos Solares
-
-CREATE TABLE equipos\\\\\\\_solares (
-
-\\\&#x20;   id INT AUTO\\\\\\\_INCREMENT PRIMARY KEY,
-
-\\\&#x20;   id\\\\\\\_ubicacion INT NOT NULL,
-
-\\\&#x20;   tipo VARCHAR(50) NOT NULL,
-
-\\\&#x20;   potencia DOUBLE NOT NULL,
-
-\\\&#x20;   modelo VARCHAR(100) NOT NULL,
-
-\\\&#x20;   FOREIGN KEY (id\\\\\\\_ubicacion) REFERENCES ubicaciones(id)
-
-);
-
-
-
-\\\\-- Tabla de Registros de Energía
-
-CREATE TABLE registros\\\\\\\_energia (
-
-\\\&#x20;   id INT AUTO\\\\\\\_INCREMENT PRIMARY KEY,
-
-\\\&#x20;   id\\\\\\\_equipo INT NOT NULL,
-
-\\\&#x20;   fecha\\\\\\\_hora DATETIME NOT NULL,
-
-\\\&#x20;   voltaje DOUBLE NOT NULL,
-
-\\\&#x20;   corriente DOUBLE NOT NULL,
-
-\\\&#x20;   energia\\\\\\\_generada DOUBLE NOT NULL,
-
-\\\&#x20;   energia\\\\\\\_consumida DOUBLE NOT NULL,
-
-\\\&#x20;   FOREIGN KEY (id\\\\\\\_equipo) REFERENCES equipos\\\\\\\_solares(id)
-
-);
-
-
-
-\\\\-- Usuario administrador por defecto
-
-INSERT INTO usuarios (nombre, correo, contrasena, perfil) 
-
-VALUES ('Administrador', 'admin@prov.com', '1234', 'ADMIN');
-
-
-
-▶️ COMPILACIÓN Y EJECUCIÓN
-
-1\\\\. COMPILAR
-
-Abrí la terminal en la carpeta raíz del proyecto y ejecutá:
-
-"C:\\\\\\\\Program Files\\\\\\\\Java\\\\\\\\jdk-26.0.1\\\\\\\\bin\\\\\\\\javac" -cp "lib/\\\\\\\*" -d bin src/com/provinciasverdes/modelo/\\\\\\\*.java src/com/provinciasverdes/persistencia/\\\\\\\*.java src/com/provinciasverdes/negocio/\\\\\\\*.java src/com/provinciasverdes/interfaz/\\\\\\\*.java
-
-2\\\\. EJECUTAR
-
-java -cp "lib/\\\\\\\*;bin" com.provinciasverdes.interfaz.Main
-
-
-
-🔑 ACCESO AL SISTEMA
-
-Al iniciar, ingresá estas credenciales por defecto:
-
-✉️ Correo: admin@prov.com
-
-🔒 Contraseña: 1234
-
-📖 GUÍA DE USO (ORDEN OBLIGATORIO)
-
-Para que los datos se generen correctamente y no haya errores, seguí este orden:
-
-📍 Opción 2: Gestión de Ubicaciones
-
-Agregá una ubicación (ej: Formosa, Centro 123, lat: -26.17, lon: -58.18)
-
-Guardá el ID que te devuelve
-
-☀️ Opción 3: Gestión de Equipos Solares
-
-Agregá un equipo usando el ID de ubicación anterior
-
-Guardá el ID del equipo
-
-⚡ Opción 4: Registro de Mediciones
-
-Cargá mediciones usando el ID del equipo
-
-Repetí varias veces para tener datos
-
-📊 Opciones 5 y 6: Balance y Reportes
-
-Ahora sí verás cálculos y reportes completos (ej: Junio-2026)
-
-
-
-POSIBLES ERRORES Y SOLUCIONES
-
-❌ No existe la base de datos: Ejecutá el script SQL primero.
-
-❌ No se encuentra la tabla: Verificá que creaste todas las tablas correctamente.
-
-❌ ID no existe: Respetá el orden: Ubicación → Equipo → Medición.
-
-❌ Sin datos para calcular: Cargá al menos una medición antes de generar reportes.
-
-
-
+├── lib/                     # Librería de conexión a MySQL
+│   └── mysql-connector-j-9.x.jar
+├── sql/                     # Script para crear la base de datos
+│   └── provincias_verdes.sql
+├── src/                     # Código fuente Java
+│   └── com/provinciasverdes/
+│       ├── archivos/        # Gestión de respaldos de datos
+│       ├── interfaz/        # Menús y entrada de datos por consola
+│       ├── interfaces/      # Interfaces para exportación y validación
+│       ├── modelo/          # Clases de entidad y enumeraciones
+│       │   └── enums/       # Tipos y estados definidos
+│       ├── negocio/         # Lógica de cálculo y reglas del sistema
+│       └── persistencia/    # Conexión a la base y acceso a datos
+└── README.md                # Documentación del proyecto
+
+##👤 Usuario de prueba
+Para iniciar sesión y probar el sistema:
+Correo: admin@prov.com
+Contraseña: 1234
