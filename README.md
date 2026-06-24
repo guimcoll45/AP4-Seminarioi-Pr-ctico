@@ -1,1 +1,0 @@
-# AP4-Seminarioi-Pr-ctico
