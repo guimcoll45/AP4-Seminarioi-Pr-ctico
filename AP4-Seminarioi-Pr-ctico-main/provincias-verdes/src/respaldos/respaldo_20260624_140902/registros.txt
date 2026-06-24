@@ -1,1 +1,0 @@
-RegistroEnergia{id=1, idEquipo=1, fecha_hora=2025-06-23T00:00, energia_generada=12.5, energia_consumida=9.8, voltaje=220.0, corriente=10.0, balance=2.6999999999999993}
