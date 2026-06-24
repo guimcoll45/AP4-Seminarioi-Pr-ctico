@@ -1,0 +1,2 @@
+com.provinciasverdes.modelo.EquipoSolar@15bfd87
+com.provinciasverdes.modelo.EquipoSolar@543e710e
